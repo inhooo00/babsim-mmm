@@ -1,0 +1,57 @@
+package shop.babsim.babsim.member.domain;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import shop.babsim.babsim.global.entity.BaseEntity;
+import shop.babsim.babsim.global.entity.Status;
+
+@Entity
+@Getter
+@NoArgsConstructor
+public class Member extends BaseEntity {
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    private String email;
+
+    private String name;
+
+    private String picture;
+
+    @Enumerated(value = EnumType.STRING)
+    private SocialType socialType;
+
+    private String nickname;
+
+    private String introduction;
+
+
+    @Builder
+    private Member(Status status, Role role,
+                   String email, String name,
+                   String picture,
+                   SocialType socialType,
+                   String nickname,
+                   String introduction) {
+        this.status = status;
+        this.role = role;
+        this.email = email;
+        this.name = name;
+        this.picture = picture;
+        this.socialType = socialType;
+        this.nickname = nickname;
+        this.introduction = introduction;
+    }
+
+    public void updatePicture(String picture) {
+        this.picture = picture;
+    }
+}
