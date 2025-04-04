@@ -33,7 +33,6 @@ public class Member extends BaseEntity {
 
     private String introduction;
 
-
     @Builder
     private Member(Status status, Role role,
                    String email, String name,
