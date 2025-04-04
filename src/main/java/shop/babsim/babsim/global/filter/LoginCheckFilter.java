@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.filter.GenericFilterBean;
-import shop.babsim.babsim.global.filter.exceptiton.AuthenticationException;
 import shop.babsim.babsim.global.jwt.TokenProvider;
 
 @Slf4j
@@ -47,8 +46,6 @@ public class LoginCheckFilter extends GenericFilterBean {
                 // 토큰이 유효한 경우 사용자 정보를 로그로 출력
             }
             chain.doFilter(request, response);
-        } catch (AuthenticationException e) {
-            throw e;
         } finally {
             log.info("인증 체크 필터 종료{}", requestURI);
         }
