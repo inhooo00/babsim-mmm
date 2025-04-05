@@ -1,3 +1,4 @@
+// GoogleAuthService.java
 package shop.babsim.babsim.global.oauth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -6,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,28 +15,21 @@ import org.springframework.web.client.RestTemplate;
 import shop.babsim.babsim.auth.api.dto.response.IdTokenResDto;
 import shop.babsim.babsim.auth.api.dto.response.UserInfo;
 import shop.babsim.babsim.auth.application.AuthService;
+import shop.babsim.babsim.global.oauth.config.GoogleOAuthProperties;
 import shop.babsim.babsim.global.oauth.exception.OAuthException;
 import shop.babsim.babsim.member.domain.SocialType;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class GoogleAuthService implements AuthService {
 
     private static final String GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
     private static final String JWT_DELIMITER = "\\.";
+
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-    @Value("${google.client.id}")
-    private String google_client_id;
-    @Value("${google.client.secret}")
-    private String google_client_secret;
-    @Value("${google.redirect.uri}")
-    private String google_redirect_uri;
-
-    public GoogleAuthService(ObjectMapper objectMapper, RestTemplate restTemplate) {
-        this.objectMapper = objectMapper;
-        this.restTemplate = restTemplate;
-    }
+    private final GoogleOAuthProperties googleOAuthProperties;
 
     @Override
     public IdTokenResDto getIdToken(String code) {
@@ -43,20 +37,19 @@ public class GoogleAuthService implements AuthService {
                 "code", code,
                 "scope", "https://www.googleapis.com/auth/userinfo.profile " +
                         "https://www.googleapis.com/auth/userinfo.email",
-                "client_id", google_client_id,
-                "client_secret", google_client_secret,
-                "redirect_uri", google_redirect_uri,
+                "client_id", googleOAuthProperties.getClientId(),
+                "client_secret", googleOAuthProperties.getClientSecret(),
+                "redirect_uri", googleOAuthProperties.getRedirectUri(),
                 "grant_type", "authorization_code"
         );
 
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(GOOGLE_TOKEN_URL, params, String.class);
-
         return parseGoogleIdToken(responseEntity);
     }
 
     @Override
     public String getProvider() {
-        return String.valueOf(SocialType.GOOGLE).toLowerCase();
+        return SocialType.GOOGLE.name().toLowerCase();
     }
 
     @Transactional
@@ -73,27 +66,22 @@ public class GoogleAuthService implements AuthService {
 
     private IdTokenResDto parseGoogleIdToken(ResponseEntity<String> responseEntity) {
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            String responseBody = responseEntity.getBody();
             try {
-                JsonNode jsonNode = objectMapper.readTree(responseBody);
-                JsonNode idToken = jsonNode.get("id_token");
-
-                return new IdTokenResDto(idToken);
+                JsonNode jsonNode = objectMapper.readTree(responseEntity.getBody());
+                return new IdTokenResDto(jsonNode.get("id_token"));
             } catch (Exception e) {
-                throw new RuntimeException("ID 토큰을 파싱하는데 실패했습니다.", e);
+                throw new OAuthException("ID 토큰을 파싱하는데 실패했습니다.");
             }
         }
-        throw new RuntimeException("구글 엑세스 토큰을 가져오는데 실패했습니다.");
+        throw new OAuthException("구글 엑세스 토큰을 가져오는데 실패했습니다.");
     }
 
     private String getDecodePayload(String idToken) {
         String payload = getPayload(idToken);
-
         return new String(Base64.getUrlDecoder().decode(payload), StandardCharsets.UTF_8);
     }
 
     private String getPayload(String idToken) {
         return idToken.split(JWT_DELIMITER)[1];
     }
-
 }

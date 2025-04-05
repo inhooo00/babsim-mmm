@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.auth.api.dto.response.IdTokenResDto;
@@ -13,15 +14,12 @@ import shop.babsim.babsim.global.oauth.exception.OAuthException;
 import shop.babsim.babsim.member.domain.SocialType;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AppleAuthService implements AuthService {
     private static final String JWT_DELIMITER = "\\.";
 
     private final ObjectMapper objectMapper;
-
-    public AppleAuthService(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @Override
     public String getProvider() {
