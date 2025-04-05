@@ -1,4 +1,4 @@
-package shop.babsim.babsim.domain.global.filter;
+package shop.babsim.babsim.global.filter;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;

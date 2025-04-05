@@ -1,4 +1,4 @@
-package shop.babsim.babsim.domain.global.annotation;
+package shop.babsim.babsim.global.annotation;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;

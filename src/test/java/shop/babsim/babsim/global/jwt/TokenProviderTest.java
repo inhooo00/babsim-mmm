@@ -1,4 +1,4 @@
-package shop.babsim.babsim.domain.global.jwt;
+package shop.babsim.babsim.global.jwt;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

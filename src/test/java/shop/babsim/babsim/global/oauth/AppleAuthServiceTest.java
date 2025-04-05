@@ -1,4 +1,4 @@
-package shop.babsim.babsim.domain.global.oauth;
+package shop.babsim.babsim.global.oauth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
