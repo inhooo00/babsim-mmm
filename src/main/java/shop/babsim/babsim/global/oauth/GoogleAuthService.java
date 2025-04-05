@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import shop.babsim.babsim.global.oauth.exception.OAuthException;
 import shop.babsim.babsim.member.domain.SocialType;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class GoogleAuthService implements AuthService {
 
@@ -31,11 +33,6 @@ public class GoogleAuthService implements AuthService {
     private String google_client_secret;
     @Value("${google.redirect.uri}")
     private String google_redirect_uri;
-
-    public GoogleAuthService(ObjectMapper objectMapper, RestTemplate restTemplate) {
-        this.objectMapper = objectMapper;
-        this.restTemplate = restTemplate;
-    }
 
     @Override
     public IdTokenResDto getIdToken(String code) {
