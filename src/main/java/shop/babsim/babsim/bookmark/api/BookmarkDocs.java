@@ -16,12 +16,12 @@ import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.jwt.api.dto.TokenDto;
 import shop.babsim.babsim.global.template.RspTemplate;
 
-@Tag(name = "[리뷰 찜 API]", description = "리뷰 찜 관련 API")
+@Tag(name = "[장소 찜 API]", description = "장소 찜 관련 API")
 public interface BookmarkDocs {
 
-    @Operation(summary = "리뷰 찜 등록 / 삭제", description = "리뷰 찜 등록 / 삭제를 진행합니다.",
+    @Operation(summary = "장소 찜 등록 / 삭제", description = "장소 찜 등록 / 삭제를 진행합니다.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "리뷰 찜 등록 / 삭제 성공",
+                    @ApiResponse(responseCode = "200", description = "장소 찜 등록 / 삭제 성공",
                             content = @Content(schema = @Schema(implementation = Void.class))),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청"),
                     @ApiResponse(responseCode = "401", description = "인증 실패"),
