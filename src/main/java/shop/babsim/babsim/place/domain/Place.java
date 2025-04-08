@@ -12,6 +12,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
+import shop.babsim.babsim.review.domain.Review;
 
 @Entity
 @Getter
@@ -56,6 +57,9 @@ public class Place {
     private Double latitude; // 위도 ex) 37
 
     private Double longitude; // 경도 ex) 127
+
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
 
     public static Place from(PlaceCsvData placeCsvData) {
         Place place = new Place();
