@@ -81,7 +81,6 @@ public class PlaceDocument {
     @Field(type = FieldType.Double)
     private Double longitude; // 경도 ex) 127
 
-    // ✅ 정적 팩토리 메서드 추가
     public static PlaceDocument from(PlaceCsvData placeCsvData) {
         return PlaceDocument.builder()
                 .province(placeCsvData.getProvince())
