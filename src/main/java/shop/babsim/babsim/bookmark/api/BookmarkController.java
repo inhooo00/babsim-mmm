@@ -17,7 +17,7 @@ import shop.babsim.babsim.global.template.RspTemplate;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/bookmarks")
-public class BookmarkController {
+public class BookmarkController implements BookmarkDocs{
 
     private final BookmarkService bookmarkService;
 

@@ -13,7 +13,7 @@ import shop.babsim.babsim.heart.application.HeartService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/hearts")
-public class HeartController {
+public class HeartController implements HeartDocs {
 
     private final HeartService heartService;
 

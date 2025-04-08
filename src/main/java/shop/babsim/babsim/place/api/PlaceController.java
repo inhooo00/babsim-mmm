@@ -18,7 +18,7 @@ import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/places")
-public class PlaceController {
+public class PlaceController implements PlaceDocs{
 
     public final PlaceService placeService;
 
