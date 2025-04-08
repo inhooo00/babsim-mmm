@@ -39,7 +39,7 @@ public class PlaceSearchRepositoryImpl implements PlaceSearchCustomRepository {
             // ✅ 결과 매핑 수정
             List<PlaceSearchResDto> result = response.hits().hits().stream()
                     .map(Hit::source).filter(Objects::nonNull) // ✅ PlaceDocument로 변환
-                    .map(document -> new PlaceSearchResDto(document.getBusinessName())) // ✅ 이름만 매핑
+                    .map(document -> new PlaceSearchResDto(document.getBusinessName(),document.getPlaceId())) // ✅ 이름만 매핑
                     .toList();
 
             // ✅ 페이징 처리에서 TotalHits에서 value 값만 추출

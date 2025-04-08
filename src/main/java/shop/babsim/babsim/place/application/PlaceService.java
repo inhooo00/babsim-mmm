@@ -41,4 +41,10 @@ public class PlaceService {
 
         return PlaceCsvData.of(place);
     }
+
+    public PlaceCsvData getPlaceCsvDataByPlaceId(String placeId) {
+        Place place = placeRepository.findByPlaceId(placeId).orElseThrow(PlaceNotFoundException::new);
+
+        return PlaceCsvData.of(place);
+    }
 }

@@ -40,10 +40,17 @@ public class PlaceController {
                 placeService.getPlacesByMenu(keyword, PageRequest.of(page, size)));
     }
 
-    @GetMapping("/businessName")
-    public RspTemplate<PlaceCsvData> getPlaceCsvDataById(@RequestParam("businessName") String businessName) {
+    @GetMapping("/business-name")
+    public RspTemplate<PlaceCsvData> getPlaceCsvDataByBusinessName(@RequestParam("businessName") String businessName) {
         return new RspTemplate<>(HttpStatus.OK,
                 "장소 개별 조회 성공",
                 placeService.getPlaceCsvDataByBusinessName(businessName));
+    }
+
+    @GetMapping("/place-id")
+    public RspTemplate<PlaceCsvData> getPlaceCsvDataById(@RequestParam("placeId") String placeId) {
+        return new RspTemplate<>(HttpStatus.OK,
+                "장소 개별 조회 성공",
+                placeService.getPlaceCsvDataByPlaceId(placeId));
     }
 }
