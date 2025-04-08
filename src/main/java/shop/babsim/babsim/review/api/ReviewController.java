@@ -26,7 +26,7 @@ import shop.babsim.babsim.review.s3.application.AwsS3Service;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/reviews")
-public class ReviewController {
+public class ReviewController implements ReviewDocs{
 
     private final ReviewService reviewService;
     private final AwsS3Service awsS3Service;
