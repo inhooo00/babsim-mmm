@@ -27,7 +27,7 @@ import shop.babsim.babsim.member.domain.SocialType;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController implements AuthDocs{
 
     private final AuthServiceFactory authServiceFactory;
     private final AuthMemberService memberService;
