@@ -24,7 +24,7 @@ class HeartServiceTest {
     private MemberRepository memberRepository;
 
     @InjectMocks
-    private ddHeartService heartService;
+    private HeartService heartService;
 
     @BeforeEach
     void setUp() {
