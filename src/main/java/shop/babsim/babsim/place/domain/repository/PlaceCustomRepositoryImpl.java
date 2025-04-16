@@ -7,8 +7,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+import shop.babsim.babsim.bookmark.domain.QBookmark;
+import shop.babsim.babsim.member.domain.QMember;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
-import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
+import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
 import shop.babsim.babsim.place.domain.Place;
 import shop.babsim.babsim.place.domain.QPlace;
 
@@ -19,9 +21,11 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<PlaceCsvData> findAllByLocationCoordinates(LocationCoordinatesDto locationCoordinatesDto,
+    public Page<PlaceSearchBookmarkResDto> findAllByLocationCoordinates(String email,LocationCoordinatesDto locationCoordinatesDto,
                                                            Pageable pageable) {
         QPlace place = QPlace.place;
+        QBookmark bookmark = QBookmark.bookmark;
+        QMember member = QMember.member;
 
         double minLatitude = locationCoordinatesDto.minLatitude();
         double maxLatitude = locationCoordinatesDto.maxLatitude();
@@ -31,8 +35,7 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
         List<Place> places = queryFactory
                 .selectFrom(place)
                 .where(
-                        place.latitude.between(minLatitude, maxLatitude), // 위도 범위 필터링
-                        // 경계선을 넘어가는 경우도 처리
+                        place.latitude.between(minLatitude, maxLatitude),
                         (minLongitude <= maxLongitude) ?
                                 place.longitude.between(minLongitude, maxLongitude) :
                                 place.longitude.loe(minLongitude).or(place.longitude.goe(maxLongitude))
@@ -41,8 +44,15 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        List<PlaceCsvData> result = places.stream()
-                .map(p -> new PlaceCsvData(
+        List<String> bookmarkedPlaceIds = queryFactory
+                .select(bookmark.place.placeId)
+                .from(bookmark)
+                .join(bookmark.member, member)
+                .where(member.email.eq(email))
+                .fetch();
+
+        List<PlaceSearchBookmarkResDto> result = places.stream()
+                .map(p -> new PlaceSearchBookmarkResDto(
                         p.getProvince(),
                         p.getCity(),
                         p.getCategory(),
@@ -58,7 +68,8 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
                         p.getWeekdayDescriptions(),
                         p.getPhotoUrls(),
                         p.getLatitude(),
-                        p.getLongitude()
+                        p.getLongitude(),
+                        bookmarkedPlaceIds.contains(p.getPlaceId())
                 ))
                 .toList();
 
@@ -74,4 +85,5 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
 
         return PageableExecutionUtils.getPage(result, pageable, () -> total);
     }
+
 }
