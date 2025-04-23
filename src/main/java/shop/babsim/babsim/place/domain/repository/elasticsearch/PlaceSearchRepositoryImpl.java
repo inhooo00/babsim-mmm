@@ -36,13 +36,13 @@ public class PlaceSearchRepositoryImpl implements PlaceSearchCustomRepository {
                     PlaceDocument.class
             );
 
-            // ✅ 결과 매핑 수정
+            // 결과 매핑 수정
             List<PlaceSearchResDto> result = response.hits().hits().stream()
-                    .map(Hit::source).filter(Objects::nonNull) // ✅ PlaceDocument로 변환
+                    .map(Hit::source).filter(Objects::nonNull) // PlaceDocument로 변환
                     .map(document -> new PlaceSearchResDto(document.getBusinessName(),document.getPlaceId())) // ✅ 이름만 매핑
                     .toList();
 
-            // ✅ 페이징 처리에서 TotalHits에서 value 값만 추출
+            // 페이징 처리에서 TotalHits에서 value 값만 추출
             long totalHits = response.hits().total() != null ? response.hits().total().value() : 0;
 
             return PageableExecutionUtils.getPage(result, pageable, () -> totalHits);
