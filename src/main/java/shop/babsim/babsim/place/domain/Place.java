@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import shop.babsim.babsim.bookmark.domain.Bookmark;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
 import shop.babsim.babsim.review.domain.Review;
 
@@ -60,6 +61,9 @@ public class Place {
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bookmark> bookmarks = new ArrayList<>();
 
     public static Place from(PlaceCsvData placeCsvData) {
         Place place = new Place();

@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
+import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResDto;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
 import shop.babsim.babsim.place.domain.Place;
@@ -41,16 +42,17 @@ class PlaceServiceTest {
     @Test
     @DisplayName("위경도 기반 장소 목록을 정상적으로 반환한다")
     void getPlaceCsvData_success() {
+        String email = "test@example.com";
         LocationCoordinatesDto coords = new LocationCoordinatesDto(37.0, 127.0, 37.5, 127.5);
         Pageable pageable = PageRequest.of(0, 10);
 
-        Page<PlaceCsvData> fakePage = new PageImpl<>(Collections.emptyList());
-        when(placeRepository.findAllByLocationCoordinates(coords, pageable)).thenReturn(fakePage);
+        Page<PlaceSearchBookmarkResDto> fakePage = new PageImpl<>(Collections.emptyList());
+        when(placeRepository.findAllByLocationCoordinates(email,coords, pageable)).thenReturn(fakePage);
 
-        var result = placeService.getPlaceCsvData(coords, pageable);
+        var result = placeService.getPlaceCsvData(email,coords, pageable);
 
         assertThat(result).isNotNull();
-        verify(placeRepository).findAllByLocationCoordinates(coords, pageable);
+        verify(placeRepository).findAllByLocationCoordinates(email,coords, pageable);
     }
 
     @Test

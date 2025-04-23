@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.global.dto.PageInfoResDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
+import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResListDto;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
@@ -24,14 +25,17 @@ public class PlaceService {
     private final PlaceRepository placeRepository;
     private final PlaceSearchRepository placeSearchRepository;
 
-    public PlaceResListDto getPlaceCsvData(LocationCoordinatesDto locationCoordinatesDto, Pageable pageable) {
-        Page<PlaceCsvData> placeCsvDatas = placeRepository.findAllByLocationCoordinates(locationCoordinatesDto, pageable);
+    public PlaceResListDto getPlaceCsvData(String email, LocationCoordinatesDto locationCoordinatesDto,
+                                           Pageable pageable) {
+        Page<PlaceSearchBookmarkResDto> placeCsvDatas = placeRepository.findAllByLocationCoordinates(email,
+                locationCoordinatesDto, pageable);
 
         return PlaceResListDto.of(placeCsvDatas.getContent(), PageInfoResDto.from(placeCsvDatas));
     }
 
     public PlaceSearchResListDto getPlacesByMenu(String keyword, Pageable pageable) {
-        Page<PlaceSearchResDto> placeSearchResDtos = placeSearchRepository.searchByMenuOrBusinessName(keyword, pageable);
+        Page<PlaceSearchResDto> placeSearchResDtos = placeSearchRepository.searchByMenuOrBusinessName(keyword,
+                pageable);
 
         return PlaceSearchResListDto.of(placeSearchResDtos.getContent(), PageInfoResDto.from(placeSearchResDtos));
     }
