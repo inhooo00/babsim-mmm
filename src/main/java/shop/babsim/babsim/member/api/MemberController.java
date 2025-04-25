@@ -14,7 +14,7 @@ import shop.babsim.babsim.member.application.MemberService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
-public class MemberController {
+public class MemberController implements MemberDocs{
 
     private final MemberService memberService;
 
