@@ -17,12 +17,14 @@ public class MemberService {
 
     // 마이페이지 조회 (사진, 리뷰 수, 제보 수, 평균 평점)
     public MyPageInfoResDto findMyProfileByEmail(String email) {
-        return memberRepository.findMyProfileByEmail(email);
+        return memberRepository.findProfileByEmail(email);
     }
 
-    // 내가 쓴 리뷰 리스트 조회
-
-    // 내가 쓴 제보 리스트 조회
-
     // 상대방 프로필 조회 (사진, 이름, 총 리뷰 수, 평균 평점, 총 제보 수, 리뷰 리스트)
+    public MyPageInfoResDto findProfileByEmail(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+
+        return memberRepository.findProfileByEmail(member.getEmail());
+    }
 }

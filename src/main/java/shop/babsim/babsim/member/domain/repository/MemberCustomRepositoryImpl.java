@@ -16,7 +16,7 @@ public class MemberCustomRepositoryImpl implements MemberCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final EntityManager entityManager;
 
-    public MyPageInfoResDto findMyProfileByEmail(String email) {
+    public MyPageInfoResDto findProfileByEmail(String email) {
         QMember member = QMember.member;
         QReview review = QReview.review;
         QReport report = QReport.report;

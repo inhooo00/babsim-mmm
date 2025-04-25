@@ -4,5 +4,5 @@ import shop.babsim.babsim.member.api.dto.response.MyPageInfoResDto;
 
 public interface MemberCustomRepository {
 
-    MyPageInfoResDto findMyProfileByEmail(String email);
+    MyPageInfoResDto findProfileByEmail(String email);
 }
