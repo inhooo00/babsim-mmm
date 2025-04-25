@@ -67,4 +67,18 @@ public interface ReviewDocs {
             @Parameter(description = "페이지 번호", required = true) int page,
             @Parameter(description = "요청할 개수", required = true) int size
     );
+
+    @Operation(summary = "내 리뷰 리스트 조회", description = "내 리뷰 리스트를 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "리뷰 조회 성공",
+                            content = @Content(schema = @Schema(implementation = ReviewListResDto.class))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            })
+    RspTemplate<ReviewListResDto> getMyReviewList(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
+            @Parameter(description = "페이지 번호", required = true) int page,
+            @Parameter(description = "요청할 개수", required = true) int size
+    );
 }

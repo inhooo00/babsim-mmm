@@ -89,4 +89,58 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .fetchOne();
 
         return averageRating != null ? averageRating : 0.0;    }
+
+    @Override
+    public Page<ReviewInfoResDto> findAllByMemberId(Long memberId, Pageable pageable) {
+        BooleanBuilder condition = new BooleanBuilder();
+        condition.and(review.status.eq(Status.ACTIVE));
+
+        if (memberId != null) {
+            condition.and(review.member.id.eq(memberId));
+        }
+
+        List<ReviewInfoResDto> content = queryFactory
+                .select(Projections.constructor(
+                        ReviewInfoResDto.class,
+                        review.feedImage,
+                        review.rating,
+                        review.content,
+                        review.likes,
+                        review.member.id,
+                        review.id,
+                        review.createdAt,
+                        review.member.name,
+                        review.member.picture
+                ))
+                .from(review)
+                .where(condition)
+                .orderBy(review.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        List<ReviewInfoResDto> parsedContent = content.stream()
+                .map(feedInfoResDto -> ReviewInfoResDto.builder()
+                        .feedImage(s3Util.getFileUrl(feedInfoResDto.feedImage()))
+                        .rating(feedInfoResDto.rating())
+                        .content(feedInfoResDto.content())
+                        .likes(feedInfoResDto.likes())
+                        .memberId(feedInfoResDto.memberId())
+                        .reviewId(feedInfoResDto.reviewId())
+                        .createdAt(feedInfoResDto.createdAt())
+                        .memberName(feedInfoResDto.memberName())
+                        .memberImage(feedInfoResDto.memberImage())
+                        .build()
+                )
+                .toList();
+
+        long total = queryFactory
+                .select(review.count())
+                .from(review)
+                .where(condition)
+                .fetchOne();
+
+        return PageableExecutionUtils.getPage(parsedContent, pageable, () -> total);
+    }
+
 }
