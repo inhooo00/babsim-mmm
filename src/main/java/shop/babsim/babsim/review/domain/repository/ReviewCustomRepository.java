@@ -8,4 +8,6 @@ public interface ReviewCustomRepository {
     Page<ReviewInfoResDto> findAllByPlaceId(String placeId, Pageable pageable);
 
     Double getRatingAvgByPlaceId(String placeId);
+
+    Page<ReviewInfoResDto> findAllByMemberId(Long memberId, Pageable pageable);
 }

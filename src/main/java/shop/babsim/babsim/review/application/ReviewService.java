@@ -58,4 +58,15 @@ public class ReviewService {
                 PageInfoResDto.from(reviews)
         );
     }
+
+    // 이메일로 리뷰 리스트 조회
+    public ReviewListResDto findByEmail(String email, Pageable pageable) {
+        Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
+        Page<ReviewInfoResDto> reviews = reviewRepository.findAllByMemberId(member.getId(), pageable);
+
+        return ReviewListResDto.of(
+                reviews.getContent(),
+                PageInfoResDto.from(reviews)
+        );
+    }
 }

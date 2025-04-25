@@ -61,4 +61,12 @@ public class ReviewController implements ReviewDocs{
                 reviewService.findByPlaceId(placeId,
                         PageRequest.of(page, size)));
     }
+
+    @GetMapping("/my-reviews")
+    public RspTemplate<ReviewListResDto> getMyReviewList(@CurrentUserEmail String email,
+                                                          @RequestParam(name = "page", defaultValue = "0") int page,
+                                                          @RequestParam(name = "size", defaultValue = "10") int size) {
+        return new RspTemplate<>(HttpStatus.OK, "내 리뷰 조회",
+                reviewService.findByEmail(email, PageRequest.of(page, size)));
+    }
 }
