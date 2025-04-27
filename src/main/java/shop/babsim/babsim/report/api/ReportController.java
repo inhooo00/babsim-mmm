@@ -19,7 +19,7 @@ import shop.babsim.babsim.report.application.ReportService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/reports")
-public class ReportController {
+public class ReportController implements ReportDocs{
 
     private final ReportService reportService;
 
