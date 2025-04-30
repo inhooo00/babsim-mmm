@@ -6,7 +6,7 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages = "shop.babsim.babsim_betta.place.domain.repository.elasticsearch")
+@EnableElasticsearchRepositories(basePackages = "shop.babsim.babsim.place.domain.repository.elasticsearch")
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
     @Override
