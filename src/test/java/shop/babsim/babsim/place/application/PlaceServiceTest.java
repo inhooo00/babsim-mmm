@@ -14,7 +14,7 @@ import shop.babsim.babsim.place.api.dto.response.PlaceSearchResDto;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
 import shop.babsim.babsim.place.domain.Place;
 import shop.babsim.babsim.place.domain.repository.PlaceRepository;
-//import shop.babsim.babsim.place.domain.repository.elasticsearch.PlaceSearchRepository;
+import shop.babsim.babsim.place.domain.repository.elasticsearch.PlaceSearchRepository;
 import shop.babsim.babsim.place.exception.PlaceNotFoundException;
 
 import java.util.Collections;
@@ -28,8 +28,8 @@ class PlaceServiceTest {
     @Mock
     private PlaceRepository placeRepository;
 
-//    @Mock
-//    private PlaceSearchRepository placeSearchRepository;
+    @Mock
+    private PlaceSearchRepository placeSearchRepository;
 
     @InjectMocks
     private PlaceService placeService;
@@ -62,12 +62,12 @@ class PlaceServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         Page<PlaceSearchResDto> fakePage = new PageImpl<>(Collections.emptyList());
-        when(placeRepository.searchByKeyword(keyword, pageable)).thenReturn(fakePage);
+        when(placeSearchRepository.searchByMenuOrBusinessName(keyword, pageable)).thenReturn(fakePage);
 
         var result = placeService.getPlacesByMenu(keyword, pageable);
 
         assertThat(result).isNotNull();
-        verify(placeRepository).searchByKeyword(keyword, pageable);
+        verify(placeSearchRepository).searchByMenuOrBusinessName(keyword, pageable);
     }
 
     @Test
