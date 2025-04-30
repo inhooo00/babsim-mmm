@@ -14,7 +14,7 @@ import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
 import shop.babsim.babsim.place.domain.Place;
 import shop.babsim.babsim.place.domain.PlaceDocument;
 import shop.babsim.babsim.place.domain.repository.PlaceRepository;
-import shop.babsim.babsim.place.domain.repository.elasticsearch.PlaceSearchRepository;
+//import shop.babsim.babsim.place.domain.repository.elasticsearch.PlaceSearchRepository;
 
 @Slf4j
 @Configuration
@@ -24,7 +24,7 @@ import shop.babsim.babsim.place.domain.repository.elasticsearch.PlaceSearchRepos
 public class CsvScheduleWriter implements ItemWriter<PlaceCsvData> {
 
     private final PlaceRepository placeRepository;
-    private final PlaceSearchRepository placeSearchRepository;
+//    private final PlaceSearchRepository placeSearchRepository;
 
     @Override
     public void write(Chunk<? extends PlaceCsvData> chunk) {
@@ -39,17 +39,17 @@ public class CsvScheduleWriter implements ItemWriter<PlaceCsvData> {
                 .map(PlaceDocument::from)
                 .collect(Collectors.toList());
 
-        saveToElasticSearchAsync(placeDocuments);
+//        saveToElasticSearchAsync(placeDocuments);
     }
 
     // ✅ ElasticSearch 저장을 비동기 처리
-    @Async
-    public void saveToElasticSearchAsync(List<PlaceDocument> placeDocuments) {
-        try {
-            placeSearchRepository.saveAll(placeDocuments);
-            log.info("✅ ElasticSearch 저장 완료: {}개 데이터", placeDocuments.size());
-        } catch (Exception e) {
-            log.error("❌ ElasticSearch 저장 실패: {}", e.getMessage());
-        }
-    }
+//    @Async
+//    public void saveToElasticSearchAsync(List<PlaceDocument> placeDocuments) {
+//        try {
+//            placeSearchRepository.saveAll(placeDocuments);
+//            log.info("✅ ElasticSearch 저장 완료: {}개 데이터", placeDocuments.size());
+//        } catch (Exception e) {
+//            log.error("❌ ElasticSearch 저장 실패: {}", e.getMessage());
+//        }
+//    }
 }

@@ -1,36 +1,36 @@
-version: '2.4'
-
-services:
-  es:
-    container_name: es
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
-    environment:
-      - node.name=single-node
-      - cluster.name=backtony
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms256m -Xmx256m  # JVM 힙 최소/최대 제한
-    ports:
-      - 9200:9200
-      - 9300:9300
-    networks:
-      - es-bridge
-    mem_limit: 512m       # 전체 메모리 제한
-    cpus: 0.5             # 전체 CPU 사용량 제한
-
-  kibana:
-    container_name: kibana
-    image: docker.elastic.co/kibana/kibana:8.10.2
-    environment:
-      SERVER_NAME: kibana
-      ELASTICSEARCH_HOSTS: http://es:9200
-    ports:
-      - 6601:5601
-    depends_on:
-      - es
-    networks:
-      - es-bridge
-
-networks:
-  es-bridge:
-    driver: bridge
+#version: '2.4'
+#
+#services:
+#  es:
+#    container_name: es
+#    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+#    environment:
+#      - node.name=single-node
+#      - cluster.name=backtony
+#      - discovery.type=single-node
+#      - xpack.security.enabled=false
+#      - ES_JAVA_OPTS=-Xms256m -Xmx256m  # JVM 힙 최소/최대 제한
+#    ports:
+#      - 9200:9200
+#      - 9300:9300
+#    networks:
+#      - es-bridge
+#    mem_limit: 512m       # 전체 메모리 제한
+#    cpus: 0.5             # 전체 CPU 사용량 제한
+#
+#  kibana:
+#    container_name: kibana
+#    image: docker.elastic.co/kibana/kibana:8.10.2
+#    environment:
+#      SERVER_NAME: kibana
+#      ELASTICSEARCH_HOSTS: http://es:9200
+#    ports:
+#      - 6601:5601
+#    depends_on:
+#      - es
+#    networks:
+#      - es-bridge
+#
+#networks:
+#  es-bridge:
+#    driver: bridge
