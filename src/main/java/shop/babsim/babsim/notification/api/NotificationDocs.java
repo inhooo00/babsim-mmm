@@ -1,0 +1,60 @@
+package shop.babsim.babsim.notification.api;
+
+import shop.babsim.babsim.global.template.RspTemplate;
+import shop.babsim.babsim.notification.api.dto.response.NotificationsResDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+@Tag(name = "[알림 API]", description = "알림 API")
+public interface NotificationDocs {
+
+    @Operation(summary = "SSE 연결", description = "SSE를 통해 실시간 알림을 받기 위한 연결.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "SSE 연결 성공"),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            })
+    ResponseEntity<SseEmitter> connect(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email);
+
+    @Operation(summary = "SSE로 알림 요청하기(프론트 test용)", description = "클라이언트의 요청으로 SSE를 통해 실시간 알림을 보낸다."
+            + "대부분 약속한 상황(친구 관련, 좋아요 관련)에서는 서버에서 클라이언트에게 데이터를 자동으로 푸시해주지만,"
+            + "테스트용으로 만들었다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "SSE 전송 성공"),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            })
+    RspTemplate<Void> send(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
+            @Parameter(description = "알림 받을 member 고유 Id", required = true) Long targetMemberId);
+
+    @Operation(summary = "알림 조회하기", description = "알림을 조회한다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "알림 조회 성공",
+                    content = @Content(schema = @Schema(implementation = NotificationsResDto.class))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            })
+    RspTemplate<NotificationsResDto> getNotifications(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email);
+
+    @Operation(summary = "알림 읽음으로 처리", description = "모든 알림을 읽음으로 처리한다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "알림 읽음처리 성공"),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            })
+    RspTemplate<Void> markAllNotificationsAsRead(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email);
+}
