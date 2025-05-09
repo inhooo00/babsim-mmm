@@ -27,30 +27,32 @@ public class HeartCustomRepositoryImpl implements HeartCustomRepository {
 
     @Override
     @Transactional
-    public void createOrDeleteReviewHeart(Member member, Long reviewId) {
-
-        boolean exists = queryFactory
-                .selectOne()
-                .from(heart)
-                .where(heart.member.eq(member).and(heart.review.id.eq(reviewId)))
-                .fetchFirst() != null;
-
+    public void addReviewHeart(Member member, Long reviewId) {
         Review targetReview = entityManager.find(Review.class, reviewId);
         if (targetReview == null) {
             throw new ReviewNotFoundException();
         }
 
-        if (!exists) { // 카운트 증가
-            Heart newHeart = new Heart(member, targetReview);
-            entityManager.persist(newHeart);
+        Heart newHeart = new Heart(member, targetReview);
+        entityManager.persist(newHeart);
 
-            targetReview.increasingLikes();
-        } else { // 카운트 감소
-            queryFactory
-                    .delete(heart)
-                    .where(heart.member.eq(member).and(heart.review.id.eq(reviewId)))
-                    .execute();
+        targetReview.increasingLikes();
+    }
 
+    @Override
+    @Transactional
+    public void removeReviewHeart(Member member, Long reviewId) {
+        Review targetReview = entityManager.find(Review.class, reviewId);
+        if (targetReview == null) {
+            throw new ReviewNotFoundException();
+        }
+
+        long deletedCount = queryFactory
+                .delete(heart)
+                .where(heart.member.eq(member).and(heart.review.id.eq(reviewId)))
+                .execute();
+
+        if (deletedCount > 0) {
             targetReview.decreasingLikes();
         }
     }
@@ -62,24 +64,5 @@ public class HeartCustomRepositoryImpl implements HeartCustomRepository {
                 .from(heart)
                 .where(heart.member.eq(member).and(heart.review.id.eq(reviewId)))
                 .fetchFirst() != null;
-    }
-
-    @Override
-    public List<Boolean> findHeartsForReviews(List<Review> reviews, Member member) {
-        if (reviews == null || reviews.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<Long> reviewIds = reviews.stream()
-                .map(Review::getId)
-                .toList();
-
-        return reviewIds.stream()
-                .map(review -> queryFactory
-                        .selectFrom(heart)
-                        .where(heart.member.eq(member)
-                                .and(heart.review.id.eq(review)))
-                        .fetchFirst() != null)
-                .collect(Collectors.toList());
     }
 }
