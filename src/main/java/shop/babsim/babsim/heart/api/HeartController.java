@@ -22,7 +22,7 @@ public class HeartController implements HeartDocs {
             @CurrentUserEmail String email,
             @PathVariable Long reviewId) {
 
-        heartService.createOrDeleteReviewHeart(email, reviewId);
+        heartService.toggleReviewHeart(email, reviewId);
 
         return new RspTemplate<>(HttpStatus.OK, "좋아요 등록/삭제 성공");
     }

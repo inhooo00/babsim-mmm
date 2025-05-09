@@ -17,11 +17,15 @@ public class HeartService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void createOrDeleteReviewHeart(String email, Long reviewId) {
+    public void toggleReviewHeart(String email, Long reviewId) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(MemberNotFoundException::new);
 
-        heartRepository.createOrDeleteReviewHeart(member, reviewId);
-    }
+        if (!heartRepository.existsByMemberAndReviewId(member, reviewId)) {
+            heartRepository.addReviewHeart(member, reviewId);
+            return;
+        }
 
+        heartRepository.removeReviewHeart(member, reviewId);
+    }
 }
