@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.ArrayList;
 import java.util.Collections;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -15,6 +16,10 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 
 @Configuration
 public class SwaggerConfig {
+
+    // 환경변수로 서버 URL 주입
+    @Value("${swagger.server-url}")
+    private String serverUrl;
 
     @Bean
     public OpenAPI nongDamAPI() {
@@ -32,9 +37,9 @@ public class SwaggerConfig {
                         .scheme("bearer")
                         .bearerFormat("JWT"));
 
+        // 서버 URL을 환경변수에서 가져옴
         Server localServer = new Server()
-                .url("https://dwenoeim.store")
-                .url("http://localhost:8080")
+                .url(serverUrl)  // 환경변수로 설정된 URL
                 .description("Local Server");
 
         return new OpenAPI()
