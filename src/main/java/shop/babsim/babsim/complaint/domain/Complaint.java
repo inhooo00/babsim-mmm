@@ -1,14 +1,20 @@
 package shop.babsim.babsim.complaint.domain;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import shop.babsim.babsim.global.entity.BaseEntity;
 import shop.babsim.babsim.member.domain.Member;
 import shop.babsim.babsim.review.domain.Review;
 
+@Entity
+@Getter
+@NoArgsConstructor
 public class Complaint extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
