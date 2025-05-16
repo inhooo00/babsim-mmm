@@ -12,12 +12,12 @@ import shop.babsim.babsim.global.template.RspTemplate;
 @RestController
 @RequestMapping("/api/complaints")
 @RequiredArgsConstructor
-public class ComplaintController {
+public class ComplaintController implements ComplaintDocs{
 
     private final ComplaintService complaintService;
 
     @PostMapping("/review")
-    public RspTemplate<Long> reportReview(
+    public RspTemplate<Void> reportReview(
             @CurrentUserEmail String email,
             @RequestBody ReviewReportReqDto reviewReportReqDto) {
 
