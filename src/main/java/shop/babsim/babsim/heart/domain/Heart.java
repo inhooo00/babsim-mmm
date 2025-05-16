@@ -1,6 +1,7 @@
 package shop.babsim.babsim.heart.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
@@ -19,11 +20,11 @@ import shop.babsim.babsim.review.domain.Review;
 @AllArgsConstructor
 public class Heart extends BaseEntity {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
     private Review review;
 }

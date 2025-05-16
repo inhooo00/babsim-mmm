@@ -39,7 +39,7 @@ public class Member extends BaseEntity {
 
     private String introduction;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
     @Builder
