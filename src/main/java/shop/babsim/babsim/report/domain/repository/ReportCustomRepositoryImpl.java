@@ -41,7 +41,6 @@ public class ReportCustomRepositoryImpl implements ReportCustomRepository {
                         report.member.id,
                         report.businessName,
                         report.address,
-                        report.placeId,
                         report.menu,
                         report.price
                 ))
@@ -58,7 +57,6 @@ public class ReportCustomRepositoryImpl implements ReportCustomRepository {
                         .memberId(reportResDto.memberId())
                         .businessName(reportResDto.businessName())
                         .address(reportResDto.address())
-                        .placeId(reportResDto.placeId())
                         .menu(reportResDto.menu())
                         .price(reportResDto.price())
                         .build()

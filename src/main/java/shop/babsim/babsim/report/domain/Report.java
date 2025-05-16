@@ -25,8 +25,6 @@ public class Report extends BaseEntity {
 
     private String address; // 주소
 
-    private String placeId; // 가게 아이디
-
     private String menu;
 
     private String price;
@@ -36,12 +34,11 @@ public class Report extends BaseEntity {
     private Member member;
 
     @Builder
-    public Report(Member member, String businessName, String address, String placeId, String menu, String price) {
+    public Report(Member member, String businessName, String address, String menu, String price) {
         this.member = member;
         this.status = Status.ACTIVE;
         this.businessName = businessName;
         this.address = address;
-        this.placeId = placeId;
         this.menu = menu;
         this.price = price;
     }
