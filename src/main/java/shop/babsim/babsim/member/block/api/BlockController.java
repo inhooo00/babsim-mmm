@@ -11,7 +11,7 @@ import shop.babsim.babsim.member.block.application.BlockService;
 @RestController
 @RequestMapping("/api/blocks")
 @RequiredArgsConstructor
-public class BlockController {
+public class BlockController implements BlockDocs{
 
     private final BlockService blockService;
 
@@ -31,14 +31,5 @@ public class BlockController {
             @RequestBody BlockUserReqDto blockUserReqDto) {
         blockService.unblockUser(email, blockUserReqDto);
         return new RspTemplate<>(HttpStatus.OK, "유저 차단을 해제했습니다.");
-    }
-
-    // 유저 차단 여부 확인
-    @GetMapping("/{blockedId}")
-    public RspTemplate<Boolean> isUserBlocked(
-            @CurrentUserEmail String email,
-            @PathVariable Long blockedId) {
-        boolean isBlocked = blockService.isUserBlocked(email, blockedId);
-        return new RspTemplate<>(HttpStatus.OK, "차단 여부 조회 성공", isBlocked);
     }
 }

@@ -58,12 +58,4 @@ public class BlockService {
 
         blockRepository.delete(blockedUser);
     }
-
-    // 특정 유저가 차단했는지 확인
-    public boolean isUserBlocked(String email, Long blockedId) {
-        Member blocker = memberRepository.findByEmail(email)
-                .orElseThrow(MemberNotFoundException::new);
-
-        return blockRepository.existsByBlockerIdAndBlockedId(blocker.getId(), blockedId);
-    }
 }
