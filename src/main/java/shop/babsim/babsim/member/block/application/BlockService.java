@@ -1,9 +1,15 @@
 package shop.babsim.babsim.member.block.application;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shop.babsim.babsim.global.dto.PageInfoResDto;
 import shop.babsim.babsim.member.block.api.dto.request.BlockUserReqDto;
+import shop.babsim.babsim.member.block.api.dto.response.BlockInfoResDto;
+import shop.babsim.babsim.member.block.api.dto.response.BlockListResDto;
 import shop.babsim.babsim.member.block.domain.Block;
 import shop.babsim.babsim.member.block.domain.repository.BlockRepository;
 import shop.babsim.babsim.member.block.exception.AlreadyBlockedException;
@@ -57,5 +63,20 @@ public class BlockService {
                 .orElseThrow(BlockNotFoundException::new);
 
         blockRepository.delete(blockedUser);
+    }
+
+
+    // 내가 차단한 유저 목록 조회
+    public BlockListResDto getMyBlockedUsers(String email, Pageable pageable) {
+        Member blocker = memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new);
+
+        Page<Block> blockedUsersPage = blockRepository.findAllByBlockerId(blocker.getId(), pageable);
+
+        List<BlockInfoResDto> blockedUsers = blockedUsersPage.stream()
+                .map(BlockInfoResDto::from)
+                .toList();
+
+        return BlockListResDto.of(blockedUsers, PageInfoResDto.from(blockedUsersPage));
     }
 }

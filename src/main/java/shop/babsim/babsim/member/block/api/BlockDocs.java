@@ -14,6 +14,7 @@ import shop.babsim.babsim.complaint.domain.ComplaintStatus;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
 import shop.babsim.babsim.member.block.api.dto.request.BlockUserReqDto;
+import shop.babsim.babsim.member.block.api.dto.response.BlockListResDto;
 
 @Tag(name = "[유저 차단 API]", description = "유저 차단 관련 API")
 public interface BlockDocs {
@@ -26,7 +27,7 @@ public interface BlockDocs {
                     @ApiResponse(responseCode = "401", description = "인증 실패"),
                     @ApiResponse(responseCode = "500", description = "서버 오류")
             })
-    public RspTemplate<Void> blockUser(
+    RspTemplate<Void> blockUser(
             @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
             @Parameter(description = "차단하고 싶은 유저 id", required = true) BlockUserReqDto blockUserReqDto);
 
@@ -38,7 +39,20 @@ public interface BlockDocs {
                     @ApiResponse(responseCode = "401", description = "인증 실패"),
                     @ApiResponse(responseCode = "500", description = "서버 오류")
             })
-    public RspTemplate<Void> unblockUser(
+    RspTemplate<Void> unblockUser(
             @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
             @Parameter(description = "해제하고 싶은 유저 id", required = true) BlockUserReqDto blockUserReqDto);
+
+    @Operation(summary = "내가 차단한 유저 조회", description = "내가 차단한 유저들을 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "해제 성공",
+                            content = @Content(schema = @Schema(implementation = Void.class))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            })
+    RspTemplate<BlockListResDto> getMyBlockedUsers(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
+            @Parameter(description = "페이지 번호", required = true) int page,
+            @Parameter(description = "요청할 개수", required = true) int size);
 }
