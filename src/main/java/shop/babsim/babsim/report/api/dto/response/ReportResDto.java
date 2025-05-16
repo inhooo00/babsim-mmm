@@ -8,7 +8,6 @@ public record ReportResDto(
         Long memberId,
         String businessName,
         String address,
-        String placeId,
         String menu,
         String price
 ) {
@@ -17,7 +16,6 @@ public record ReportResDto(
                 .memberId(report.getMember().getId())
                 .businessName(report.getBusinessName())
                 .address(report.getAddress())
-                .placeId(report.getPlaceId())
                 .menu(report.getMenu())
                 .price(report.getPrice())
                 .build();

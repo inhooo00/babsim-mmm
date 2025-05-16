@@ -7,7 +7,6 @@ public record ReportReqDto(
         Long memberId,
         String businessName,
         String address,
-        String placeId,
         String menu,
         String price
 ) {
@@ -16,7 +15,6 @@ public record ReportReqDto(
                 .member(member)
                 .businessName(reportReqDto.businessName)
                 .address(reportReqDto.address)
-                .placeId(reportReqDto.placeId)
                 .menu(reportReqDto.menu)
                 .price(reportReqDto.price)
                 .build();
