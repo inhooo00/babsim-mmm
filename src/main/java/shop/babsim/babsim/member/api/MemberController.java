@@ -3,12 +3,16 @@ package shop.babsim.babsim.member.api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
+import shop.babsim.babsim.member.api.dto.request.UpdateProfileReqDto;
 import shop.babsim.babsim.member.api.dto.response.MyPageInfoResDto;
+import shop.babsim.babsim.member.api.dto.response.UpdateMyPageInfoResDto;
 import shop.babsim.babsim.member.application.MemberService;
 
 @RestController
@@ -28,5 +32,21 @@ public class MemberController implements MemberDocs{
     public RspTemplate<MyPageInfoResDto> memberProfileInfo(@PathVariable Long memberId) {
         MyPageInfoResDto memberResDto = memberService.findProfileByEmail(memberId);
         return new RspTemplate<>(HttpStatus.OK, "상대방 프로필 정보", memberResDto);
+    }
+
+    // 내 수정 정보 조회
+    @GetMapping("/update-my-page")
+    public RspTemplate<UpdateMyPageInfoResDto> findMyProfile(@CurrentUserEmail String email) {
+        return new RspTemplate<>(HttpStatus.OK, "내 수정 정보 조회 성공", memberService.findMyProfile(email));
+    }
+
+    // 내 정보 수정
+    @PatchMapping("/update-my-page")
+    public RspTemplate<UpdateMyPageInfoResDto> updateMyProfile(
+            @CurrentUserEmail String email,
+            @RequestBody UpdateProfileReqDto updateProfileReqDto) {
+        return new RspTemplate<>(HttpStatus.OK,
+                "내 수정 정보 수정 성공",
+                memberService.updateMyProfile(email, updateProfileReqDto));
     }
 }

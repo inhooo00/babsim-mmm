@@ -40,19 +40,7 @@ public class AuthMemberService {
 
     private Member getExistingMemberOrCreateNew(UserInfo userInfo, SocialType provider) {
         return memberRepository.findByEmail(userInfo.email())
-                .map(member -> {
-                    updateMemberInfo(member, userInfo);
-                    return member;
-                })
                 .orElseGet(() -> createMember(userInfo, provider));
-    }
-
-    private void updateMemberInfo(Member member, UserInfo userInfo) {
-        String newPicture = getUserPicture(userInfo.picture());
-
-        if (!member.getPicture().equals(newPicture)) {
-            member.updatePicture(newPicture);
-        }
     }
 
     private Member createMember(UserInfo userInfo, SocialType provider) {
