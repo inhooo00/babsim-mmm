@@ -62,4 +62,18 @@ public class MemberCustomRepositoryImpl implements MemberCustomRepository {
                 .grade(grade.getName())
                 .build();
     }
+
+    @Override
+    public int getReviewCountByEmail(String email) {
+        QReview review = QReview.review;
+
+        Integer reviewCount = queryFactory
+                .select(review.id.count().intValue())
+                .from(review)
+                .where(review.member.email.eq(email))
+                .fetchOne();
+
+        return reviewCount != null ? reviewCount : 0;
+    }
+
 }

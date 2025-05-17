@@ -37,17 +37,17 @@ public class MemberService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(MemberNotFoundException::new);
 
-        return UpdateMyPageInfoResDto.from(member);
+        return UpdateMyPageInfoResDto.of(member, memberRepository.getReviewCountByEmail(email));
     }
 
     // 내 정보 수정
     @Transactional
     public UpdateMyPageInfoResDto updateMyProfile(String email, UpdateProfileReqDto updateProfileReqDto) {
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new MemberNotFoundException("이메일로 회원을 찾을 수 없습니다."));
+                .orElseThrow(MemberNotFoundException::new);
 
         member.updateProfile(updateProfileReqDto.getPicture(), updateProfileReqDto.getNickname());
 
-        return UpdateMyPageInfoResDto.from(member);
+        return UpdateMyPageInfoResDto.of(member, memberRepository.getReviewCountByEmail(email));
     }
 }
