@@ -50,4 +50,10 @@ public class MemberService {
 
         return UpdateMyPageInfoResDto.of(member, memberRepository.getReviewCountByEmail(email));
     }
+
+    @Transactional
+    public void deleteMember(String email) {
+        memberRepository.delete(memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new));
+    }
 }

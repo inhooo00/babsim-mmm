@@ -6,13 +6,21 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import shop.babsim.babsim.bookmark.domain.Bookmark;
+import shop.babsim.babsim.complaint.domain.Complaint;
 import shop.babsim.babsim.global.entity.BaseEntity;
 import shop.babsim.babsim.global.entity.Status;
+import shop.babsim.babsim.global.jwt.domain.Token;
+import shop.babsim.babsim.heart.domain.Heart;
+import shop.babsim.babsim.member.block.domain.Block;
+import shop.babsim.babsim.notification.domain.Notification;
+import shop.babsim.babsim.report.domain.Report;
 import shop.babsim.babsim.review.domain.Review;
 
 @Entity
@@ -39,8 +47,32 @@ public class Member extends BaseEntity {
 
     private String introduction;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Token token;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Complaint> complaints = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bookmark> bookmarks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Heart> hearts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "receiver", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Report> reports = new ArrayList<>();
+
+    @OneToMany(mappedBy = "blocker", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Block> blockedMembers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "blocked", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Block> blockedByMembers = new ArrayList<>();
 
     @Builder
     private Member(Status status, Role role,
@@ -58,7 +90,7 @@ public class Member extends BaseEntity {
         this.nickname = nickname;
         this.introduction = introduction;
     }
-    
+
     public void updateProfile(String picture, String nickName) {
         this.picture = picture;
         this.nickname = nickName;
