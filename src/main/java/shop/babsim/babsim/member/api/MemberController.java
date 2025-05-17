@@ -2,6 +2,7 @@ package shop.babsim.babsim.member.api;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,5 +49,11 @@ public class MemberController implements MemberDocs{
         return new RspTemplate<>(HttpStatus.OK,
                 "내 수정 정보 수정 성공",
                 memberService.updateMyProfile(email, updateProfileReqDto));
+    }
+
+    @DeleteMapping()
+    public RspTemplate<Void> deleteMyProfile(@CurrentUserEmail String email) {
+        memberService.deleteMember(email);
+        return new RspTemplate<>(HttpStatus.OK, "회원 탈퇴 성공");
     }
 }

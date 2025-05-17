@@ -6,6 +6,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
@@ -13,12 +14,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shop.babsim.babsim.global.entity.BaseEntity;
 import shop.babsim.babsim.global.entity.Status;
+import shop.babsim.babsim.global.jwt.domain.Token;
 import shop.babsim.babsim.review.domain.Review;
 
 @Entity
 @Getter
 @NoArgsConstructor
 public class Member extends BaseEntity {
+
+    @OneToOne(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Token token;
 
     @Enumerated(EnumType.STRING)
     private Status status;
