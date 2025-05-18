@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,7 +26,7 @@ public class PlaceController implements PlaceDocs {
 
     @GetMapping
     public RspTemplate<PlaceResListDto> getPlaceCsvData(@CurrentUserEmail String email,
-                                                        @RequestBody LocationCoordinatesDto locationCoordinatesDto,
+                                                        @ModelAttribute LocationCoordinatesDto locationCoordinatesDto,
                                                         @RequestParam(name = "page", defaultValue = "0") int page,
                                                         @RequestParam(name = "size", defaultValue = "10") int size) {
         return new RspTemplate<>(HttpStatus.OK,
