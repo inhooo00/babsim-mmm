@@ -1,11 +1,13 @@
 package shop.babsim.babsim.place.application;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.global.dto.PageInfoResDto;
+import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
@@ -51,5 +53,10 @@ public class PlaceService {
         Place place = placeRepository.findByPlaceId(placeId).orElseThrow(PlaceNotFoundException::new);
 
         return PlaceCsvData.of(place);
+    }
+
+    public PlaceCursorResListDto getPlacesByCursor(String email, LocationCoordinatesDto dto, String cursorId, int size) {
+        List<PlaceSearchBookmarkResDto> rawData = placeRepository.findAllByCursor(email, dto, cursorId, size);
+        return PlaceCursorResListDto.of(rawData, size);
     }
 }

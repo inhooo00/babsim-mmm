@@ -1,5 +1,6 @@
 package shop.babsim.babsim.place.domain.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,8 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<PlaceSearchBookmarkResDto> findAllByLocationCoordinates(String email, LocationCoordinatesDto locationCoordinatesDto,
+    public Page<PlaceSearchBookmarkResDto> findAllByLocationCoordinates(String email,
+                                                                        LocationCoordinatesDto locationCoordinatesDto,
                                                                         Pageable pageable) {
         QPlace place = QPlace.place;
         QBookmark bookmark = QBookmark.bookmark;
@@ -88,4 +90,48 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
         return PageableExecutionUtils.getPage(result, pageable, () -> total);
     }
 
+    @Override
+    public List<PlaceSearchBookmarkResDto> findAllByCursor(String email, LocationCoordinatesDto location,
+                                                           String cursorId, int size) {
+        QPlace place = QPlace.place;
+        QBookmark bookmark = QBookmark.bookmark;
+        QMember member = QMember.member;
+
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(place.latitude.between(location.minLatitude(), location.maxLatitude()))
+                .and((location.minLongitude() <= location.maxLongitude()) ?
+                        place.longitude.between(location.minLongitude(), location.maxLongitude()) :
+                        place.longitude.loe(location.minLongitude()).or(place.longitude.goe(location.maxLongitude()))
+                );
+
+        if (cursorId != null) {
+            builder.and(place.placeId.lt(cursorId));
+        }
+
+        List<Place> places = queryFactory
+                .selectFrom(place)
+                .where(builder)
+                .orderBy(place.placeId.desc())
+                .limit(size)
+                .fetch();
+
+        List<String> bookmarkedIds = (email != null && !email.isBlank())
+                ? queryFactory.select(bookmark.place.placeId)
+                .from(bookmark)
+                .join(bookmark.member, member)
+                .where(member.email.eq(email))
+                .fetch()
+                : List.of();
+
+        return places.stream()
+                .map(p -> new PlaceSearchBookmarkResDto(
+                        p.getProvince(), p.getCity(), p.getCategory(), p.getBusinessName(),
+                        p.getContactNumber(), p.getAddress(), p.getMenu1(), p.getPrice1(),
+                        p.getMenu2(), p.getPrice2(), p.getPlaceId(), p.getPeriods(),
+                        p.getWeekdayDescriptions(), p.getPhotoUrls(),
+                        p.getLatitude(), p.getLongitude(),
+                        bookmarkedIds.contains(p.getPlaceId())
+                ))
+                .toList();
+    }
 }

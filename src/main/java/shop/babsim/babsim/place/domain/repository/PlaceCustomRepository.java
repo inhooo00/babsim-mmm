@@ -1,5 +1,6 @@
 package shop.babsim.babsim.place.domain.repository;
 
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
@@ -10,5 +11,7 @@ public interface PlaceCustomRepository {
     Page<PlaceSearchBookmarkResDto> findAllByLocationCoordinates(String email,
                                                                  LocationCoordinatesDto locationCoordinatesDto,
                                                                  Pageable pageable);
+    List<PlaceSearchBookmarkResDto> findAllByCursor(String email, LocationCoordinatesDto location, String cursorId, int size);
+
 }
 
