@@ -26,7 +26,7 @@ import shop.babsim.babsim.review.s3.application.AwsS3Service;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/reviews")
-public class ReviewController implements ReviewDocs{
+public class ReviewController implements ReviewDocs {
 
     private final ReviewService reviewService;
     private final AwsS3Service awsS3Service;
@@ -54,18 +54,19 @@ public class ReviewController implements ReviewDocs{
     }
 
     @GetMapping("/all/{placeId}")
-    public RspTemplate<ReviewListResDto> getReviewList(@PathVariable(name = "placeId") String placeId,
+    public RspTemplate<ReviewListResDto> getReviewList(@CurrentUserEmail String email,
+                                                       @PathVariable(name = "placeId") String placeId,
                                                        @RequestParam(name = "page", defaultValue = "0") int page,
                                                        @RequestParam(name = "size", defaultValue = "10") int size) {
         return new RspTemplate<>(HttpStatus.OK, "리뷰 전체 조회",
-                reviewService.findByPlaceId(placeId,
+                reviewService.findByPlaceIdExcludingBlocked(email, placeId,
                         PageRequest.of(page, size)));
     }
 
     @GetMapping("/my-reviews")
     public RspTemplate<ReviewListResDto> getMyReviewList(@CurrentUserEmail String email,
-                                                          @RequestParam(name = "page", defaultValue = "0") int page,
-                                                          @RequestParam(name = "size", defaultValue = "10") int size) {
+                                                         @RequestParam(name = "page", defaultValue = "0") int page,
+                                                         @RequestParam(name = "size", defaultValue = "10") int size) {
         return new RspTemplate<>(HttpStatus.OK, "내 리뷰 조회",
                 reviewService.findByEmail(email, PageRequest.of(page, size)));
     }

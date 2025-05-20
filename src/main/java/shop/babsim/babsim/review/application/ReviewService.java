@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.global.dto.PageInfoResDto;
+import shop.babsim.babsim.member.block.domain.repository.BlockRepository;
 import shop.babsim.babsim.member.domain.Member;
 import shop.babsim.babsim.member.domain.repository.MemberRepository;
 import shop.babsim.babsim.member.exception.MemberNotFoundException;
@@ -31,12 +32,14 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final PlaceRepository placeRepository;
     private final AwsS3Service awsS3Service;
+    private final BlockRepository blockRepository;
 
     // 리뷰 생성
     @Transactional
     public ReviewSaveInfoResDto save(String email, ReviewSaveReqDto reviewSaveReqDto, List<String> imageUrls) {
         Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
-        Place place = placeRepository.findByPlaceId(reviewSaveReqDto.placeId()).orElseThrow(PlaceNotFoundException::new);
+        Place place = placeRepository.findByPlaceId(reviewSaveReqDto.placeId())
+                .orElseThrow(PlaceNotFoundException::new);
         Review review = reviewRepository.save(reviewSaveReqDto.toEntity(member, place, imageUrls));
 
         return ReviewSaveInfoResDto.of(review, member.getId());
@@ -51,13 +54,17 @@ public class ReviewService {
     }
 
     // 장소 id로 리뷰 리스트 조회
-    public ReviewListResDto findByPlaceId(String placeId, Pageable pageable) {
-        Page<ReviewInfoResDto> reviews = reviewRepository.findAllByPlaceId(placeId, pageable);
-        return ReviewListResDto.of(
-                reviews.getContent(),
-                PageInfoResDto.from(reviews)
-        );
+    public ReviewListResDto findByPlaceIdExcludingBlocked(String email, String placeId, Pageable pageable) {
+        List<Long> blockedIds = (email != null && !email.isBlank())
+                ? blockRepository.findBlockedMemberIdsByEmail(email)
+                : List.of();
+
+        Page<ReviewInfoResDto> reviews = reviewRepository.findAllByPlaceIdExcludingBlocked(placeId, blockedIds,
+                pageable);
+
+        return ReviewListResDto.of(reviews.getContent(), PageInfoResDto.from(reviews));
     }
+
 
     // 이메일로 리뷰 리스트 조회
     public ReviewListResDto findByEmail(String email, Pageable pageable) {
