@@ -63,6 +63,7 @@ public interface ReviewDocs {
                     @ApiResponse(responseCode = "500", description = "서버 오류")
             })
     RspTemplate<ReviewListResDto> getReviewList(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
             @Parameter(description = "placeId", required = true) String placeId,
             @Parameter(description = "페이지 번호", required = true) int page,
             @Parameter(description = "요청할 개수", required = true) int size

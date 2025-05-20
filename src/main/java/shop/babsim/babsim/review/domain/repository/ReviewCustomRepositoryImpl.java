@@ -25,13 +25,16 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
     private static final QReview review = QReview.review;
 
     @Override
-    public Page<ReviewInfoResDto> findAllByPlaceId(String placeId, Pageable pageable) {
+    public Page<ReviewInfoResDto> findAllByPlaceIdExcludingBlocked(String placeId, List<Long> blockedIds, Pageable pageable) {
         BooleanBuilder condition = new BooleanBuilder();
-
         condition.and(review.status.eq(Status.ACTIVE));
 
         if (placeId != null) {
             condition.and(review.place.placeId.eq(placeId));
+        }
+
+        if (blockedIds != null && !blockedIds.isEmpty()) {
+            condition.and(review.member.id.notIn(blockedIds));
         }
 
         List<ReviewInfoResDto> content = queryFactory
@@ -88,7 +91,8 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 )
                 .fetchOne();
 
-        return averageRating != null ? averageRating : 0.0;    }
+        return averageRating != null ? averageRating : 0.0;
+    }
 
     @Override
     public Page<ReviewInfoResDto> findAllByMemberId(Long memberId, Pageable pageable) {
