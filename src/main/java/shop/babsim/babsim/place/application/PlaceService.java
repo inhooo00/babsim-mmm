@@ -26,11 +26,13 @@ public class PlaceService {
 
     public PlaceResListDto getPlaceCsvData(String email, LocationCoordinatesDto locationCoordinatesDto,
                                            Pageable pageable) {
-        Page<PlaceSearchBookmarkResDto> placeCsvDatas = placeRepository.findAllByLocationCoordinates(email,
+        String safeEmail = (email != null && !email.isBlank()) ? email : null;
+        Page<PlaceSearchBookmarkResDto> placeCsvDatas = placeRepository.findAllByLocationCoordinates(safeEmail,
                 locationCoordinatesDto, pageable);
 
         return PlaceResListDto.of(placeCsvDatas.getContent(), PageInfoResDto.from(placeCsvDatas));
     }
+
 
     public PlaceSearchResListDto getPlacesByMenu(String keyword, Pageable pageable) {
         Page<PlaceSearchResDto> placeSearchResDtos = placeRepository.searchByKeyword(keyword,

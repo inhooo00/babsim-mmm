@@ -21,8 +21,8 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<PlaceSearchBookmarkResDto> findAllByLocationCoordinates(String email,LocationCoordinatesDto locationCoordinatesDto,
-                                                           Pageable pageable) {
+    public Page<PlaceSearchBookmarkResDto> findAllByLocationCoordinates(String email, LocationCoordinatesDto locationCoordinatesDto,
+                                                                        Pageable pageable) {
         QPlace place = QPlace.place;
         QBookmark bookmark = QBookmark.bookmark;
         QMember member = QMember.member;
@@ -44,12 +44,14 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        List<String> bookmarkedPlaceIds = queryFactory
+        List<String> bookmarkedPlaceIds = (email != null && !email.isBlank())
+                ? queryFactory
                 .select(bookmark.place.placeId)
                 .from(bookmark)
                 .join(bookmark.member, member)
                 .where(member.email.eq(email))
-                .fetch();
+                .fetch()
+                : List.of();
 
         List<PlaceSearchBookmarkResDto> result = places.stream()
                 .map(p -> new PlaceSearchBookmarkResDto(
@@ -69,7 +71,7 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
                         p.getPhotoUrls(),
                         p.getLatitude(),
                         p.getLongitude(),
-                        bookmarkedPlaceIds.contains(p.getPlaceId())
+                        bookmarkedPlaceIds.contains(p.getPlaceId()) // false if empty list
                 ))
                 .toList();
 
