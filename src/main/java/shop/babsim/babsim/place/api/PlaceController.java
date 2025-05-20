@@ -5,12 +5,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
+import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResListDto;
@@ -56,4 +56,19 @@ public class PlaceController implements PlaceDocs {
                 "장소 개별 조회 성공",
                 placeService.getPlaceCsvDataByPlaceId(placeId));
     }
+
+    @GetMapping("/cursor")
+    public RspTemplate<PlaceCursorResListDto> getPlacesByCursor(
+            @CurrentUserEmail String email,
+            @RequestParam(required = false) String cursorId,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @ModelAttribute LocationCoordinatesDto locationCoordinatesDto
+    ) {
+        return new RspTemplate<>(
+                HttpStatus.OK,
+                "커서 기반 장소 조회 성공",
+                placeService.getPlacesByCursor(email, locationCoordinatesDto, cursorId, size)
+        );
+    }
+
 }

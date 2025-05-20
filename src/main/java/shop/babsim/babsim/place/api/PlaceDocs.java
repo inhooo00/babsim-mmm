@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import shop.babsim.babsim.global.template.RspTemplate;
+import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
@@ -67,5 +68,27 @@ public interface PlaceDocs {
             })
     RspTemplate<PlaceCsvData> getPlaceCsvDataById(
             @Parameter(description = "장소 아이디", required = true) String placeId
+    );
+
+    @Operation(
+            summary = "커서 기반 장소 리스트 조회",
+            description = "위경도 범위 내에서 커서 기반으로 장소 데이터를 조회합니다. " +
+                    "첫 요청 시 cursorId 없이 호출하고, 이후 응답에 포함된 nextCursor 값을 cursorId로 사용하세요.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "장소 조회 성공",
+                            content = @Content(schema = @Schema(implementation = PlaceCursorResListDto.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            }
+    )
+    RspTemplate<PlaceCursorResListDto> getPlacesByCursor(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
+            @Parameter(description = "커서 ID (이전 페이지의 마지막 placeId, 첫 요청 시 생략)", required = false) String cursorId,
+            @Parameter(description = "요청할 데이터 개수 (기본값: 10)", hidden = true) int size,
+            @Parameter(description = "좌표 정보 (min/max 위도, 경도 포함)", required = true) LocationCoordinatesDto locationCoordinatesDto
     );
 }
