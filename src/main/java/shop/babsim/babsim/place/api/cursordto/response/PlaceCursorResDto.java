@@ -1,5 +1,11 @@
 package shop.babsim.babsim.place.api.cursordto.response;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
 
@@ -16,14 +22,16 @@ public record PlaceCursorResDto(
         String menu2,
         String price2,
         String placeId,
-        String periods,
-        String weekdayDescriptions,
-        String photoUrls,
+        List<Map<String, Object>> periods,
+        List<String> weekdayDescriptions,
+        List<String> photoUrls,
         Double latitude,
         Double longitude,
         Boolean isBookmarked,
-        String cursorId //
+        String cursorId
 ) {
+    private static final ObjectMapper mapper = new ObjectMapper();
+
     public static PlaceCursorResDto of(PlaceSearchBookmarkResDto dto) {
         return PlaceCursorResDto.builder()
                 .province(dto.province())
@@ -37,13 +45,38 @@ public record PlaceCursorResDto(
                 .menu2(dto.menu2())
                 .price2(dto.price2())
                 .placeId(dto.placeId())
-                .periods(dto.periods())
-                .weekdayDescriptions(dto.weekdayDescriptions())
-                .photoUrls(dto.photoUrls())
+                .periods(parsePeriods(dto.periods()))
+                .weekdayDescriptions(parseStringList(dto.weekdayDescriptions()))
+                .photoUrls(parsePhotoUrls(dto.photoUrls()))
                 .latitude(dto.latitude())
                 .longitude(dto.longitude())
                 .isBookmarked(dto.isBookmarked())
                 .cursorId(dto.placeId())
                 .build();
+    }
+
+    private static List<String> parseStringList(String input) {
+        try {
+            return mapper.readValue(input.replace("'", "\""), new TypeReference<List<String>>() {});
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private static List<Map<String, Object>> parsePeriods(String input) {
+        try {
+            return mapper.readValue(input.replace("'", "\""), new TypeReference<List<Map<String, Object>>>() {});
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private static List<String> parsePhotoUrls(String input) {
+        if (input == null || input.isBlank()) return Collections.emptyList();
+
+        return Arrays.stream(input.split(","))
+                .map(String::trim)
+                .filter(url -> !url.isBlank())
+                .toList();
     }
 }
