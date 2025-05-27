@@ -47,27 +47,16 @@ public interface PlaceDocs {
             @Parameter(description = "요청할 개수", required = true) int size
     );
 
-    @Operation(summary = "가게 이름으로 디테일한 장소 정보 조회", description = "가게 이름으로 디테일한 장소 정보를 조회합니다.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "장소 조회 성공",
-                            content = @Content(schema = @Schema(implementation = PlaceCsvData.class))),
-                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-                    @ApiResponse(responseCode = "401", description = "인증 실패"),
-                    @ApiResponse(responseCode = "500", description = "서버 오류")
-            })
-    RspTemplate<PlaceCsvData> getPlaceCsvDataByBusinessName(
-            @Parameter(description = "가게 이름", required = true) String businessName
-    );
-
     @Operation(summary = "장소 아이디로 디테일한 장소 정보 조회", description = "장소 아이디로 디테일한 장소 정보를 조회합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "장소 조회 성공",
-                            content = @Content(schema = @Schema(implementation = PlaceCsvData.class))),
+                            content = @Content(schema = @Schema(implementation = PlaceSearchBookmarkResDto.class))),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청"),
                     @ApiResponse(responseCode = "401", description = "인증 실패"),
                     @ApiResponse(responseCode = "500", description = "서버 오류")
             })
-    RspTemplate<PlaceCsvData> getPlaceCsvDataById(
+    RspTemplate<PlaceSearchBookmarkResDto> getPlaceCsvDataById(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
             @Parameter(description = "장소 아이디", required = true) String placeId
     );
 

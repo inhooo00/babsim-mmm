@@ -14,6 +14,7 @@ import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceSearchCursorResDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
+import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResListDto;
 import shop.babsim.babsim.place.application.PlaceService;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
@@ -44,18 +45,12 @@ public class PlaceController implements PlaceDocs {
                 placeService.getPlacesByMenu(keyword, PageRequest.of(page, size)));
     }
 
-    @GetMapping("/business-name")
-    public RspTemplate<PlaceCsvData> getPlaceCsvDataByBusinessName(@RequestParam("businessName") String businessName) {
-        return new RspTemplate<>(HttpStatus.OK,
-                "장소 개별 조회 성공",
-                placeService.getPlaceCsvDataByBusinessName(businessName));
-    }
-
     @GetMapping("/place-id")
-    public RspTemplate<PlaceCsvData> getPlaceCsvDataById(@RequestParam("placeId") String placeId) {
+    public RspTemplate<PlaceSearchBookmarkResDto> getPlaceCsvDataById(@CurrentUserEmail String email,
+                                                                      @RequestParam("placeId") String placeId) {
         return new RspTemplate<>(HttpStatus.OK,
                 "장소 개별 조회 성공",
-                placeService.getPlaceCsvDataByPlaceId(placeId));
+                placeService.getPlaceCsvDataByPlaceId(email, placeId));
     }
 
     @GetMapping("/cursor")

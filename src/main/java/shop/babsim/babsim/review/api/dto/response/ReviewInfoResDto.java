@@ -10,7 +10,7 @@ import shop.babsim.babsim.review.domain.Review;
 @Builder
 public record ReviewInfoResDto(
         List<String> feedImageUrls,
-        int rating,
+        double rating,
         String content,
         int likes,
         Long memberId,

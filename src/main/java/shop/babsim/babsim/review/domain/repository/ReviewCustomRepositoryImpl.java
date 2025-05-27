@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.global.entity.Status;
 import shop.babsim.babsim.review.api.dto.response.ReviewInfoResDto;
 import shop.babsim.babsim.review.domain.QReview;
+import shop.babsim.babsim.review.domain.Review;
 import shop.babsim.babsim.review.s3.util.S3Util;
 
 @Repository
@@ -103,39 +104,16 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
             condition.and(review.member.id.eq(memberId));
         }
 
-        List<ReviewInfoResDto> content = queryFactory
-                .select(Projections.constructor(
-                        ReviewInfoResDto.class,
-                        review.feedImage,
-                        review.rating,
-                        review.content,
-                        review.likes,
-                        review.member.id,
-                        review.id,
-                        review.createdAt,
-                        review.member.name,
-                        review.member.picture
-                ))
-                .from(review)
+        List<Review> reviews = queryFactory
+                .selectFrom(review)
                 .where(condition)
                 .orderBy(review.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        List<ReviewInfoResDto> parsedContent = content.stream()
-                .map(feedInfoResDto -> ReviewInfoResDto.builder()
-                        .feedImageUrls(s3Util.getFileUrl(feedInfoResDto.feedImageUrls()))
-                        .rating(feedInfoResDto.rating())
-                        .content(feedInfoResDto.content())
-                        .likes(feedInfoResDto.likes())
-                        .memberId(feedInfoResDto.memberId())
-                        .reviewId(feedInfoResDto.reviewId())
-                        .createdAt(feedInfoResDto.createdAt())
-                        .memberName(feedInfoResDto.memberName())
-                        .memberImage(feedInfoResDto.memberImage())
-                        .build()
-                )
+        List<ReviewInfoResDto> parsedContent = reviews.stream()
+                .map(r -> ReviewInfoResDto.of(r, r.getFeedImage()))
                 .toList();
 
         long total = queryFactory
@@ -146,5 +124,6 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
 
         return PageableExecutionUtils.getPage(parsedContent, pageable, () -> total);
     }
+
 
 }

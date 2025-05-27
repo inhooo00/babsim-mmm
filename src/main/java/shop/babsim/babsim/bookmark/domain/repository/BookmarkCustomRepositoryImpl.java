@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.bookmark.domain.Bookmark;
 import shop.babsim.babsim.bookmark.domain.QBookmark;
+import shop.babsim.babsim.member.domain.QMember;
 import shop.babsim.babsim.place.domain.QPlace;
 import shop.babsim.babsim.member.domain.Member;
 import shop.babsim.babsim.place.domain.Place;
@@ -48,24 +49,20 @@ public class BookmarkCustomRepositoryImpl implements BookmarkCustomRepository {
             throw new PlaceNotFoundException();
         }
 
-        if (!exists) { // 카운트 증가
+        if (!exists) {
             Bookmark newBookmark = new Bookmark(member, targetPlace);
             entityManager.persist(newBookmark);
 
-            //targetBookmark.increasingLikes();
-        } else { // 카운트 감소
+        } else {
             queryFactory
                     .delete(bookmark)
                     .where(bookmark.member.eq(member).and(bookmark.place.placeId.eq(placeId)))
                     .execute();
-
-            //targetBookmark.decreasingLikes();
         }
     }
 
     @Override
     public Page<Bookmark> findMyBookmarksByMember(Member member, Pageable pageable) {
-        // ✅ 페이징 처리 및 쿼리 작성
         List<Bookmark> content = queryFactory
                 .select(bookmark)
                 .from(bookmark)
@@ -74,7 +71,6 @@ public class BookmarkCustomRepositoryImpl implements BookmarkCustomRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // ✅ 전체 카운트 쿼리 작성
         JPAQuery<Long> countQuery = queryFactory
                 .select(bookmark.count())
                 .from(bookmark)
@@ -83,8 +79,25 @@ public class BookmarkCustomRepositoryImpl implements BookmarkCustomRepository {
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
-    // ✅ 동적 조건 처리 (null 체크)
     private BooleanExpression eqMember(Member member) {
         return member != null ? bookmark.member.eq(member) : null;
     }
+
+    public boolean isBookmarked(String email, String placeId) {
+        QBookmark bookmark = QBookmark.bookmark;
+        QMember member = QMember.member;
+
+        Integer count = queryFactory
+                .selectOne()
+                .from(bookmark)
+                .join(bookmark.member, member)
+                .where(
+                        member.email.eq(email),
+                        bookmark.place.placeId.eq(placeId)
+                )
+                .fetchFirst();
+
+        return count != null;
+    }
+
 }
