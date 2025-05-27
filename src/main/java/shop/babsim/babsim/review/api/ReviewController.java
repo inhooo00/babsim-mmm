@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
+import shop.babsim.babsim.review.api.cursordto.ReviewCursorResDto;
 import shop.babsim.babsim.review.api.dto.request.ReviewSaveReqDto;
 import shop.babsim.babsim.review.api.dto.response.ReviewInfoResDto;
 import shop.babsim.babsim.review.api.dto.response.ReviewListResDto;
@@ -70,4 +71,26 @@ public class ReviewController implements ReviewDocs {
         return new RspTemplate<>(HttpStatus.OK, "내 리뷰 조회",
                 reviewService.findByEmail(email, PageRequest.of(page, size)));
     }
+
+    @GetMapping("/all/{placeId}/cursor")
+    public RspTemplate<ReviewCursorResDto> getReviewListWithCursor(
+            @CurrentUserEmail String email,
+            @PathVariable(name = "placeId") String placeId,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return new RspTemplate<>(HttpStatus.OK, "리뷰 커서 기반 전체 조회",
+                reviewService.findByPlaceIdWithCursor(email, placeId, cursorId, size));
+    }
+
+    @GetMapping("/my-reviews/cursor")
+    public RspTemplate<ReviewCursorResDto> getMyReviewListWithCursor(
+            @CurrentUserEmail String email,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return new RspTemplate<>(HttpStatus.OK, "커서 기반 내 리뷰 조회",
+                reviewService.findByEmailWithCursor(email, cursorId, size));
+    }
+
 }
