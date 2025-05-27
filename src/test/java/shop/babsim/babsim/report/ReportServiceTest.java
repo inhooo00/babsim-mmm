@@ -60,7 +60,6 @@ class ReportServiceTest {
                 memberId,
                 "테스트 장소",
                 "주소요",
-                "place123",
                 "정돈 먹고 싶다",
                 "₩17000"
         );

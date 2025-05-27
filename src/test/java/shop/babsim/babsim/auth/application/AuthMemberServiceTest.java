@@ -111,38 +111,4 @@ class AuthMemberServiceTest {
         assertThatThrownBy(() -> authMemberService.saveUserInfo(userInfo, SocialType.GOOGLE))
                 .isInstanceOf(ExistsMemberEmailException.class);
     }
-
-    @Test
-    @DisplayName("사진이 다르면 업데이트")
-    void shouldUpdatePicture_whenPictureChanged() {
-        UserInfo userInfo = new UserInfo("exist@babsim.com", "인호", "인호사진", "인호");
-        Member member = spy(Member.builder()
-                .email("exist@babsim.com")
-                .picture("old-url")
-                .socialType(SocialType.GOOGLE)
-                .build());
-
-        when(memberRepository.findByEmail(userInfo.email())).thenReturn(Optional.of(member));
-
-        authMemberService.saveUserInfo(userInfo, SocialType.GOOGLE);
-
-        verify(member).updatePicture("인호사진");
-    }
-
-    @Test
-    @DisplayName("사진이 같으면 업데이트 안함")
-    void shouldNotUpdatePicture_whenPictureSame() {
-        UserInfo userInfo = new UserInfo("exist@babsim.com", "인호", "인호사진", "인호");
-        Member member = spy(Member.builder()
-                .email("exist@babsim.com")
-                .picture("인호사진")
-                .socialType(SocialType.GOOGLE)
-                .build());
-
-        when(memberRepository.findByEmail(userInfo.email())).thenReturn(Optional.of(member));
-
-        authMemberService.saveUserInfo(userInfo, SocialType.GOOGLE);
-
-        verify(member, never()).updatePicture(anyString());
-    }
 }

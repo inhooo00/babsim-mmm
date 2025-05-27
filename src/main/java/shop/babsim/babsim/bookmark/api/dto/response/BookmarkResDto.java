@@ -3,6 +3,10 @@ package shop.babsim.babsim.bookmark.api.dto.response;
 import shop.babsim.babsim.bookmark.domain.Bookmark;
 import shop.babsim.babsim.place.domain.Place;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public record BookmarkResDto(
         String placeId,
         String businessName,
@@ -11,7 +15,7 @@ public record BookmarkResDto(
         String price1,
         String menu2,
         String price2,
-        String photoUrls
+        List<String> photoUrls
 ) {
     public static BookmarkResDto from(Bookmark bookmark, Double averageRating) {
         Place place = bookmark.getPlace();
@@ -23,7 +27,7 @@ public record BookmarkResDto(
                 place.getPrice1(),
                 place.getMenu2(),
                 place.getPrice2(),
-                place.getPhotoUrls()
+                parseCommaSeparatedList(place.getPhotoUrls())
         );
     }
 
@@ -36,7 +40,16 @@ public record BookmarkResDto(
                 place.getPrice1(),
                 place.getMenu2(),
                 place.getPrice2(),
-                place.getPhotoUrls()
+                parseCommaSeparatedList(place.getPhotoUrls())
         );
+    }
+
+    private static List<String> parseCommaSeparatedList(String input) {
+        if (input == null || input.isBlank()) return Collections.emptyList();
+
+        return Arrays.stream(input.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
     }
 }

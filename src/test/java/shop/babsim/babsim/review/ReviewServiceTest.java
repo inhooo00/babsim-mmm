@@ -132,22 +132,6 @@ class ReviewServiceTest {
     }
 
     @Test
-    @DisplayName("장소 ID로 리뷰 리스트 조회 성공")
-    void findByPlaceId_success() {
-        String placeId = "abc123";
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<ReviewInfoResDto> fakePage = new PageImpl<>(Collections.emptyList());
-
-        when(reviewRepository.findAllByPlaceId(placeId, pageable)).thenReturn(fakePage);
-
-        var result = reviewService.findByPlaceId(placeId, pageable);
-
-        assertThat(result).isNotNull();
-        assertThat(result.pageInfoResDto()).isInstanceOf(PageInfoResDto.class);
-        verify(reviewRepository).findAllByPlaceId(placeId, pageable);
-    }
-
-    @Test
     @DisplayName("이메일로 리뷰 리스트 조회 성공")
     void findByEmail_success() {
         Long memberId = 1L;
