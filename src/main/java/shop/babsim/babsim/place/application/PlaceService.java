@@ -3,11 +3,13 @@ package shop.babsim.babsim.place.application;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.global.dto.PageInfoResDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
+import shop.babsim.babsim.place.api.cursordto.response.PlaceSearchCursorResDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
@@ -57,6 +59,22 @@ public class PlaceService {
 
     public PlaceCursorResListDto getPlacesByCursor(String email, LocationCoordinatesDto dto, String cursorId, int size) {
         List<PlaceSearchBookmarkResDto> rawData = placeRepository.findAllByCursor(email, dto, cursorId, size);
+
         return PlaceCursorResListDto.of(rawData, size);
     }
+
+    public PlaceSearchCursorResDto getPlacesByMenuWithCursor(String keyword, String cursorId, int size) {
+        Pageable pageable = PageRequest.of(0, size + 1);
+
+        List<PlaceSearchResDto> results = placeRepository.searchByKeywordWithCursor(keyword, cursorId, pageable);
+
+        String nextCursor = null;
+        if (results.size() > size) {
+            nextCursor = results.get(size).placeId();
+            results = results.subList(0, size);
+        }
+
+        return PlaceSearchCursorResDto.of(results, nextCursor);
+    }
+
 }

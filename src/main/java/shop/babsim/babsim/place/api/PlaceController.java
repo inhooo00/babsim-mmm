@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
+import shop.babsim.babsim.place.api.cursordto.response.PlaceSearchCursorResDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResListDto;
@@ -71,4 +72,14 @@ public class PlaceController implements PlaceDocs {
         );
     }
 
+    @GetMapping("/search/cursor")
+    public RspTemplate<PlaceSearchCursorResDto> searchWithCursor(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "cursorId", required = false) String cursorId,
+            @RequestParam(value = "size", defaultValue = "5") int size) {
+
+        return new RspTemplate<>(HttpStatus.OK,
+                "장소 커서 기반 검색 성공",
+                placeService.getPlacesByMenuWithCursor(keyword, cursorId, size));
+    }
 }
