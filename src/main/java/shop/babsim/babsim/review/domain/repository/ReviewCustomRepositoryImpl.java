@@ -59,7 +59,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
 
         List<ReviewInfoResDto> parsedContent = content.stream()
                 .map(feedInfoResDto -> ReviewInfoResDto.builder()
-                        .feedImage(s3Util.getFileUrl(feedInfoResDto.feedImage()))
+                        .feedImageUrls(s3Util.getFileUrl(feedInfoResDto.feedImageUrls()))
                         .rating(feedInfoResDto.rating())
                         .content(feedInfoResDto.content())
                         .likes(feedInfoResDto.likes())
@@ -125,7 +125,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
 
         List<ReviewInfoResDto> parsedContent = content.stream()
                 .map(feedInfoResDto -> ReviewInfoResDto.builder()
-                        .feedImage(s3Util.getFileUrl(feedInfoResDto.feedImage()))
+                        .feedImageUrls(s3Util.getFileUrl(feedInfoResDto.feedImageUrls()))
                         .rating(feedInfoResDto.rating())
                         .content(feedInfoResDto.content())
                         .likes(feedInfoResDto.likes())

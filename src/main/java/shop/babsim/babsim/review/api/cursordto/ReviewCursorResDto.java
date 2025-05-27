@@ -1,8 +1,10 @@
 package shop.babsim.babsim.review.api.cursordto;
 
 import java.util.List;
+import lombok.Builder;
 import shop.babsim.babsim.review.api.dto.response.ReviewInfoResDto;
 
+@Builder
 public record ReviewCursorResDto(
         List<ReviewInfoResDto> data,
         Long nextCursor,

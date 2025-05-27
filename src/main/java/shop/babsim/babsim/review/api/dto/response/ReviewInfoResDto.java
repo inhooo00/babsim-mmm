@@ -1,12 +1,15 @@
 package shop.babsim.babsim.review.api.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import lombok.Builder;
 import shop.babsim.babsim.review.domain.Review;
 
 @Builder
 public record ReviewInfoResDto(
-        String feedImage,
+        List<String> feedImageUrls,
         int rating,
         String content,
         int likes,
@@ -19,7 +22,7 @@ public record ReviewInfoResDto(
     public static ReviewInfoResDto of(Review review, String feedImage) {
 
         return ReviewInfoResDto.builder()
-                .feedImage(feedImage)
+                .feedImageUrls(parseCommaSeparatedList(review.getFeedImage()))
                 .rating(review.getRating())
                 .content(review.getContent())
                 .likes(review.getLikes())
@@ -30,4 +33,14 @@ public record ReviewInfoResDto(
                 .memberImage(review.getMember().getPicture())
                 .build();
     }
+
+    private static List<String> parseCommaSeparatedList(String input) {
+        if (input == null || input.isBlank()) return Collections.emptyList();
+
+        return Arrays.stream(input.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+    }
+
 }
