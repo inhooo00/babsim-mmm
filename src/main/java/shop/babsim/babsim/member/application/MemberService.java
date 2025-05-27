@@ -1,10 +1,13 @@
 package shop.babsim.babsim.member.application;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.member.api.dto.request.UpdateProfileReqDto;
 import shop.babsim.babsim.member.api.dto.response.MyPageInfoResDto;
+import shop.babsim.babsim.member.api.dto.response.ProfileInfoResDto;
 import shop.babsim.babsim.member.api.dto.response.UpdateMyPageInfoResDto;
 import shop.babsim.babsim.member.domain.Member;
 import shop.babsim.babsim.member.domain.repository.MemberRepository;
@@ -55,5 +58,30 @@ public class MemberService {
     public void deleteMember(String email) {
         memberRepository.delete(memberRepository.findByEmail(email)
                 .orElseThrow(MemberNotFoundException::new));
+    }
+
+    public List<ProfileInfoResDto> getAvailableProfiles(String email) {
+        int reviewCount = reviewRepository.getReviewCountByEmail(email);
+        return generateProfiles(reviewCount);
+    }
+
+    private List<ProfileInfoResDto> generateProfiles(int reviewCount) {
+        return List.of(
+                createProfile(1, "밥심", reviewCount >= 0),
+                createProfile(2, "쌀알", reviewCount >= 3),
+                createProfile(3, "밥그릇", reviewCount >= 10),
+                createProfile(4, "맛잘알", reviewCount >= 20),
+                createProfile(5, "밥도둑", reviewCount >= 30),
+                createProfile(6, "밥심대장", reviewCount >= 50)
+        );
+    }
+
+    private ProfileInfoResDto createProfile(int level, String name, boolean unlocked) {
+        return ProfileInfoResDto.builder()
+                .profileLevel(level)
+                .name(name)
+                .imageUrl("user-image/" + level + ".png")
+                .isLocked(!unlocked)
+                .build();
     }
 }

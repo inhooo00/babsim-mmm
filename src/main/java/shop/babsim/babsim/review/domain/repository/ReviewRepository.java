@@ -37,4 +37,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewCus
              Pageable pageable
      );
 
+     @Query("SELECT COUNT(r) FROM Review r WHERE r.member.email = :email")
+     int getReviewCountByEmail(String email);
 }
