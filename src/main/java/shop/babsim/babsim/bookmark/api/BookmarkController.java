@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import shop.babsim.babsim.bookmark.api.cursordto.BookmarkCursorResDto;
 import shop.babsim.babsim.bookmark.api.dto.response.BookmarkResListDto;
 import shop.babsim.babsim.bookmark.application.BookmarkService;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
@@ -48,5 +49,15 @@ public class BookmarkController implements BookmarkDocs{
     ) {
         return new RspTemplate<>(HttpStatus.OK, "찜 개수 기준 맛집 추천 조회 성공",
                 bookmarkService.findTopPlacesByBookmarkCount(PageRequest.of(page, size)));
+    }
+
+    @GetMapping("/cursor")
+    public RspTemplate<BookmarkCursorResDto> findMyBookmarksWithCursor(
+            @CurrentUserEmail String email,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return new RspTemplate<>(HttpStatus.OK, "찜 목록 커서 기반 조회 성공",
+                bookmarkService.findMyBookmarksWithCursor(email, cursorId, size));
     }
 }
