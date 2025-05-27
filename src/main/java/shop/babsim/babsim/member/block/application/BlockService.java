@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.global.dto.PageInfoResDto;
+import shop.babsim.babsim.member.block.api.cursordto.BlockCursorResDto;
 import shop.babsim.babsim.member.block.api.dto.request.BlockUserReqDto;
 import shop.babsim.babsim.member.block.api.dto.response.BlockInfoResDto;
 import shop.babsim.babsim.member.block.api.dto.response.BlockListResDto;
@@ -78,5 +79,23 @@ public class BlockService {
                 .toList();
 
         return BlockListResDto.of(blockedUsers, PageInfoResDto.from(blockedUsersPage));
+    }
+
+    public BlockCursorResDto getMyBlockedUsersWithCursor(String email, Long cursorId, int size) {
+        Member blocker = memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new);
+
+        List<Block> blocks = blockRepository.findByBlockerIdWithCursor(blocker.getId(), cursorId,
+                Pageable.ofSize(size + 1));
+
+        boolean hasNext = blocks.size() > size;
+        Long nextCursor = hasNext ? blocks.get(size).getId() : null;
+
+        List<BlockInfoResDto> data = blocks.stream()
+                .limit(size)
+                .map(BlockInfoResDto::from)
+                .toList();
+
+        return BlockCursorResDto.of(data, nextCursor);
     }
 }

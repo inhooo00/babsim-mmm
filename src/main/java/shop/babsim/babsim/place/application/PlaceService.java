@@ -57,24 +57,21 @@ public class PlaceService {
         return PlaceCsvData.of(place);
     }
 
-    public PlaceCursorResListDto getPlacesByCursor(String email, LocationCoordinatesDto dto, String cursorId, int size) {
+    public PlaceCursorResListDto getPlacesByCursor(String email, LocationCoordinatesDto dto, String cursorId,
+                                                   int size) {
         List<PlaceSearchBookmarkResDto> rawData = placeRepository.findAllByCursor(email, dto, cursorId, size);
 
         return PlaceCursorResListDto.of(rawData, size);
     }
 
     public PlaceSearchCursorResDto getPlacesByMenuWithCursor(String keyword, String cursorId, int size) {
-        Pageable pageable = PageRequest.of(0, size + 1);
+        List<PlaceSearchResDto> rawResults = placeRepository.searchByKeywordWithCursor(keyword, cursorId, size);
 
-        List<PlaceSearchResDto> results = placeRepository.searchByKeywordWithCursor(keyword, cursorId, pageable);
+        boolean hasNext = rawResults.size() > size;
+        List<PlaceSearchResDto> trimmed = hasNext ? rawResults.subList(0, size) : rawResults;
 
-        String nextCursor = null;
-        if (results.size() > size) {
-            nextCursor = results.get(size).placeId();
-            results = results.subList(0, size);
-        }
+        String nextCursor = hasNext ? trimmed.get(trimmed.size() - 1).placeId() : null;
 
-        return PlaceSearchCursorResDto.of(results, nextCursor);
+        return PlaceSearchCursorResDto.of(trimmed, nextCursor);
     }
-
 }

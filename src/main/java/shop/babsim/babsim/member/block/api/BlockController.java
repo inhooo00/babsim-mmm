@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
+import shop.babsim.babsim.member.block.api.cursordto.BlockCursorResDto;
 import shop.babsim.babsim.member.block.api.dto.request.BlockUserReqDto;
 import shop.babsim.babsim.member.block.api.dto.response.BlockListResDto;
 import shop.babsim.babsim.member.block.application.BlockService;
@@ -44,5 +45,16 @@ public class BlockController implements BlockDocs {
         return new RspTemplate<>(HttpStatus.OK,
                 "차단 유저 목록 조회 성공",
                 blockService.getMyBlockedUsers(email, PageRequest.of(page, size)));
+    }
+
+    @GetMapping("/cursor")
+    public RspTemplate<BlockCursorResDto> getMyBlockedUsersWithCursor(
+            @CurrentUserEmail String email,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+
+        return new RspTemplate<>(HttpStatus.OK,
+                "커서 기반 차단 유저 목록 조회 성공",
+                blockService.getMyBlockedUsersWithCursor(email, cursorId, size));
     }
 }

@@ -25,23 +25,4 @@ public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceCustom
             """)
     Page<PlaceSearchResDto> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-    @Query("""
-    SELECT new shop.babsim.babsim.place.api.dto.response.PlaceSearchResDto(
-        p.businessName, p.placeId
-    )
-    FROM Place p
-    WHERE (
-        LOWER(p.menu1) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-        LOWER(p.menu2) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-        LOWER(p.businessName) LIKE LOWER(CONCAT('%', :keyword, '%'))
-    )
-    AND (:cursor IS NULL OR p.placeId > :cursor)
-    ORDER BY p.placeId ASC
-""")
-    List<PlaceSearchResDto> searchByKeywordWithCursor(
-            @Param("keyword") String keyword,
-            @Param("cursor") String cursor,
-            Pageable pageable
-    );
-
 }

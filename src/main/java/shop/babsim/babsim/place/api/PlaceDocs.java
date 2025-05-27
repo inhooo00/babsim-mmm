@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import shop.babsim.babsim.global.template.RspTemplate;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
+import shop.babsim.babsim.place.api.cursordto.response.PlaceSearchCursorResDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
@@ -91,4 +92,26 @@ public interface PlaceDocs {
             @Parameter(description = "요청할 데이터 개수 (기본값: 10)", hidden = true) int size,
             @Parameter(description = "좌표 정보 (min/max 위도, 경도 포함)", required = true) LocationCoordinatesDto locationCoordinatesDto
     );
+
+    @Operation(
+            summary = "커서 기반 키워드로 장소 검색",
+            description = "메뉴명 또는 가게명을 키워드로 검색하여 커서 기반으로 장소 리스트를 조회합니다. " +
+                    "첫 요청 시에는 cursorId를 생략하고, 이후 응답의 nextCursor를 다음 요청의 cursorId로 사용하세요.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "장소 검색 성공",
+                            content = @Content(schema = @Schema(implementation = PlaceSearchCursorResDto.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            }
+    )
+    RspTemplate<PlaceSearchCursorResDto> searchWithCursor(
+            @Parameter(description = "검색 키워드 (가게 이름 또는 메뉴 이름)", required = true) String keyword,
+            @Parameter(description = "커서 ID (이전 페이지 마지막 placeId, 첫 요청 시 생략)", required = false) String cursorId,
+            @Parameter(description = "요청할 데이터 개수 (기본값: 5)", hidden = true) int size
+    );
+
 }
