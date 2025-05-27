@@ -10,4 +10,5 @@ public interface BookmarkCustomRepository {
 
     Page<Bookmark> findMyBookmarksByMember(Member member, Pageable pageable);
 
+    boolean isBookmarked(String email, String placeId);
 }

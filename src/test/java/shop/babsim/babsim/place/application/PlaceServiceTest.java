@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import shop.babsim.babsim.bookmark.domain.repository.BookmarkRepository;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResDto;
@@ -19,6 +20,7 @@ import shop.babsim.babsim.place.exception.PlaceNotFoundException;
 
 import java.util.Collections;
 import java.util.Optional;
+import shop.babsim.babsim.review.domain.repository.ReviewRepository;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,6 +30,11 @@ class PlaceServiceTest {
     @Mock
     private PlaceRepository placeRepository;
 
+    @Mock
+    private ReviewRepository reviewRepository;
+
+    @Mock
+    private BookmarkRepository bookmarkRepository;
 //    @Mock
 //    private PlaceSearchRepository placeSearchRepository;
 
@@ -70,49 +77,41 @@ class PlaceServiceTest {
         verify(placeRepository).searchByKeyword(keyword, pageable);
     }
 
+    @DisplayName("placeId로 조회 시 존재하면 DTO 반환한다 (북마크, 평점 포함)")
     @Test
-    @DisplayName("사업장명으로 조회 시 존재하면 반환한다")
-    void getPlaceCsvDataByBusinessName_success() {
-        String name = "스타벅스";
-        Place place = mock(Place.class);
-        when(placeRepository.findByBusinessName(name)).thenReturn(Optional.of(place));
-
-        var result = placeService.getPlaceCsvDataByBusinessName(name);
-
-        assertThat(result).isNotNull();
-        verify(placeRepository).findByBusinessName(name);
-    }
-
-    @Test
-    @DisplayName("사업장명으로 조회 시 없으면 예외 발생")
-    void getPlaceCsvDataByBusinessName_notFound() {
-        String name = "없는가게";
-        when(placeRepository.findByBusinessName(name)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> placeService.getPlaceCsvDataByBusinessName(name))
-                .isInstanceOf(PlaceNotFoundException.class);
-    }
-
-    @Test
-    @DisplayName("placeId로 조회 시 존재하면 반환한다")
     void getPlaceCsvDataByPlaceId_success() {
         String id = "abc123";
-        Place place = mock(Place.class);
-        when(placeRepository.findByPlaceId(id)).thenReturn(Optional.of(place));
+        String email = "test@babsim.com";
 
-        var result = placeService.getPlaceCsvDataByPlaceId(id);
+        Place mockPlace = mock(Place.class);
+        when(placeRepository.findByPlaceId(id)).thenReturn(Optional.of(mockPlace));
+        when(reviewRepository.getRatingAvgByPlaceId(id)).thenReturn(4.3);
+        when(bookmarkRepository.isBookmarked(email, id)).thenReturn(true);
+
+        var result = placeService.getPlaceCsvDataByPlaceId(email, id);
 
         assertThat(result).isNotNull();
+        assertThat(result.isBookmarked()).isTrue();
+        assertThat(result.rating()).isEqualTo(4.3);
+
         verify(placeRepository).findByPlaceId(id);
+        verify(reviewRepository).getRatingAvgByPlaceId(id);
+        verify(bookmarkRepository).isBookmarked(email, id);
     }
 
+    @DisplayName("placeId로 조회 시 없으면 예외 발생 (PlaceNotFoundException)")
     @Test
-    @DisplayName("placeId로 조회 시 없으면 예외 발생")
     void getPlaceCsvDataByPlaceId_notFound() {
         String id = "없는아이디";
+        String email = "test@babsim.com";
+
         when(placeRepository.findByPlaceId(id)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> placeService.getPlaceCsvDataByPlaceId(id))
+        assertThatThrownBy(() -> placeService.getPlaceCsvDataByPlaceId(email, id))
                 .isInstanceOf(PlaceNotFoundException.class);
+
+        verify(placeRepository).findByPlaceId(id);
+        verifyNoInteractions(reviewRepository, bookmarkRepository);
     }
+
 }

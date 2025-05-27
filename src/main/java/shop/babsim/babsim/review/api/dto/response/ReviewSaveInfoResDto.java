@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 public record ReviewSaveInfoResDto(
         List<String> feedImageUrls,
-        int rating,
+        double rating,
         String content,
         int likes,
         Long memberId

@@ -26,7 +26,7 @@ import shop.babsim.babsim.place.domain.Place;
 @NoArgsConstructor
 public class Review extends BaseEntity {
 
-    private int rating; // 내가 준 평점
+    private double rating; // 내가 준 평점
 
     private String content;
 

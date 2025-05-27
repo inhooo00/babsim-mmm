@@ -4,6 +4,9 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +19,7 @@ import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResDto;
 import shop.babsim.babsim.place.domain.Place;
 import shop.babsim.babsim.place.domain.QPlace;
+import shop.babsim.babsim.review.domain.QReview;
 
 @Repository
 @RequiredArgsConstructor
@@ -30,6 +34,7 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
         QPlace place = QPlace.place;
         QBookmark bookmark = QBookmark.bookmark;
         QMember member = QMember.member;
+        QReview review = QReview.review;
 
         double minLatitude = locationCoordinatesDto.minLatitude();
         double maxLatitude = locationCoordinatesDto.maxLatitude();
@@ -40,13 +45,29 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
                 .selectFrom(place)
                 .where(
                         place.latitude.between(minLatitude, maxLatitude),
-                        (minLongitude <= maxLongitude) ?
-                                place.longitude.between(minLongitude, maxLongitude) :
-                                place.longitude.loe(minLongitude).or(place.longitude.goe(maxLongitude))
+                        (minLongitude <= maxLongitude)
+                                ? place.longitude.between(minLongitude, maxLongitude)
+                                : place.longitude.loe(minLongitude).or(place.longitude.goe(maxLongitude))
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
+        List<String> placeIds = places.stream()
+                .map(Place::getPlaceId)
+                .toList();
+
+        Map<String, Double> ratingMap = queryFactory
+                .select(review.place.placeId, review.rating.avg())
+                .from(review)
+                .where(review.place.placeId.in(placeIds))
+                .groupBy(review.place.placeId)
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(review.place.placeId),
+                        tuple -> Optional.ofNullable(tuple.get(review.rating.avg())).orElse(0.0)
+                ));
 
         List<String> bookmarkedPlaceIds = (email != null && !email.isBlank())
                 ? queryFactory
@@ -75,7 +96,8 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
                         p.getPhotoUrls(),
                         p.getLatitude(),
                         p.getLongitude(),
-                        bookmarkedPlaceIds.contains(p.getPlaceId()) // false if empty list
+                        bookmarkedPlaceIds.contains(p.getPlaceId()),
+                        ratingMap.getOrDefault(p.getPlaceId(), 0.0)
                 ))
                 .toList();
 
@@ -83,9 +105,9 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
                 .selectFrom(place)
                 .where(
                         place.latitude.between(minLatitude, maxLatitude),
-                        (minLongitude <= maxLongitude) ?
-                                place.longitude.between(minLongitude, maxLongitude) :
-                                place.longitude.loe(minLongitude).or(place.longitude.goe(maxLongitude))
+                        (minLongitude <= maxLongitude)
+                                ? place.longitude.between(minLongitude, maxLongitude)
+                                : place.longitude.loe(minLongitude).or(place.longitude.goe(maxLongitude))
                 )
                 .fetchCount();
 
@@ -98,12 +120,13 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
         QPlace place = QPlace.place;
         QBookmark bookmark = QBookmark.bookmark;
         QMember member = QMember.member;
+        QReview review = QReview.review;
 
         BooleanBuilder builder = new BooleanBuilder()
                 .and(place.latitude.between(location.minLatitude(), location.maxLatitude()))
-                .and((location.minLongitude() <= location.maxLongitude()) ?
-                        place.longitude.between(location.minLongitude(), location.maxLongitude()) :
-                        place.longitude.loe(location.minLongitude()).or(place.longitude.goe(location.maxLongitude()))
+                .and((location.minLongitude() <= location.maxLongitude())
+                        ? place.longitude.between(location.minLongitude(), location.maxLongitude())
+                        : place.longitude.loe(location.minLongitude()).or(place.longitude.goe(location.maxLongitude()))
                 );
 
         if (cursorId != null) {
@@ -117,6 +140,22 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
                 .limit(size)
                 .fetch();
 
+        List<String> placeIds = places.stream()
+                .map(Place::getPlaceId)
+                .toList();
+
+        Map<String, Double> ratingMap = queryFactory
+                .select(review.place.placeId, review.rating.avg())
+                .from(review)
+                .where(review.place.placeId.in(placeIds))
+                .groupBy(review.place.placeId)
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(review.place.placeId),
+                        tuple -> Optional.ofNullable(tuple.get(review.rating.avg())).orElse(0.0)
+                ));
+
         List<String> bookmarkedIds = (email != null && !email.isBlank())
                 ? queryFactory.select(bookmark.place.placeId)
                 .from(bookmark)
@@ -127,15 +166,28 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
 
         return places.stream()
                 .map(p -> new PlaceSearchBookmarkResDto(
-                        p.getProvince(), p.getCity(), p.getCategory(), p.getBusinessName(),
-                        p.getContactNumber(), p.getAddress(), p.getMenu1(), p.getPrice1(),
-                        p.getMenu2(), p.getPrice2(), p.getPlaceId(), p.getPeriods(),
-                        p.getWeekdayDescriptions(), p.getPhotoUrls(),
-                        p.getLatitude(), p.getLongitude(),
-                        bookmarkedIds.contains(p.getPlaceId())
+                        p.getProvince(),
+                        p.getCity(),
+                        p.getCategory(),
+                        p.getBusinessName(),
+                        p.getContactNumber(),
+                        p.getAddress(),
+                        p.getMenu1(),
+                        p.getPrice1(),
+                        p.getMenu2(),
+                        p.getPrice2(),
+                        p.getPlaceId(),
+                        p.getPeriods(),
+                        p.getWeekdayDescriptions(),
+                        p.getPhotoUrls(),
+                        p.getLatitude(),
+                        p.getLongitude(),
+                        bookmarkedIds.contains(p.getPlaceId()),
+                        ratingMap.getOrDefault(p.getPlaceId(), 0.0)
                 ))
                 .toList();
     }
+
 
     @Override
     public List<PlaceSearchResDto> searchByKeywordWithCursor(String keyword, String cursor, int size) {

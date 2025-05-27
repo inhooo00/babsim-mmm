@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shop.babsim.babsim.bookmark.domain.repository.BookmarkRepository;
 import shop.babsim.babsim.global.dto.PageInfoResDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceSearchCursorResDto;
@@ -19,6 +20,7 @@ import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
 import shop.babsim.babsim.place.domain.Place;
 import shop.babsim.babsim.place.domain.repository.PlaceRepository;
 import shop.babsim.babsim.place.exception.PlaceNotFoundException;
+import shop.babsim.babsim.review.domain.repository.ReviewRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,9 @@ import shop.babsim.babsim.place.exception.PlaceNotFoundException;
 public class PlaceService {
 
     private final PlaceRepository placeRepository;
+    private final ReviewRepository reviewRepository;
+    private final BookmarkRepository bookmarkRepository;
+
 //    private final PlaceSearchRepository placeSearchRepository;
 
     public PlaceResListDto getPlaceCsvData(String email, LocationCoordinatesDto locationCoordinatesDto,
@@ -45,16 +50,15 @@ public class PlaceService {
         return PlaceSearchResListDto.of(placeSearchResDtos.getContent(), PageInfoResDto.from(placeSearchResDtos));
     }
 
-    public PlaceCsvData getPlaceCsvDataByBusinessName(String businessName) {
-        Place place = placeRepository.findByBusinessName(businessName).orElseThrow(PlaceNotFoundException::new);
+    public PlaceSearchBookmarkResDto getPlaceCsvDataByPlaceId(String email, String placeId) {
+        Place place = placeRepository.findByPlaceId(placeId)
+                .orElseThrow(PlaceNotFoundException::new);
 
-        return PlaceCsvData.of(place);
-    }
+        Double ratingAvg = reviewRepository.getRatingAvgByPlaceId(placeId);
+        boolean isBookmarked = (email != null && !email.isBlank()) &&
+                bookmarkRepository.isBookmarked(email, placeId);
 
-    public PlaceCsvData getPlaceCsvDataByPlaceId(String placeId) {
-        Place place = placeRepository.findByPlaceId(placeId).orElseThrow(PlaceNotFoundException::new);
-
-        return PlaceCsvData.of(place);
+        return PlaceSearchBookmarkResDto.of(place, isBookmarked, ratingAvg);
     }
 
     public PlaceCursorResListDto getPlacesByCursor(String email, LocationCoordinatesDto dto, String cursorId,

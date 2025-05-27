@@ -28,7 +28,8 @@ public record PlaceCursorResDto(
         Double latitude,
         Double longitude,
         Boolean isBookmarked,
-        String cursorId
+        String cursorId,
+        Double rating
 ) {
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -52,6 +53,7 @@ public record PlaceCursorResDto(
                 .longitude(dto.longitude())
                 .isBookmarked(dto.isBookmarked())
                 .cursorId(dto.placeId())
+                .rating(dto.rating())
                 .build();
     }
 
