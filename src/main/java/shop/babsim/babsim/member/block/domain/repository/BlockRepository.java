@@ -15,5 +15,16 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
     List<Block> findAllByBlockedId(Long blockedId);
     @Query("SELECT b.blocked.id FROM Block b WHERE b.blocker.email = :email")
     List<Long> findBlockedMemberIdsByEmail(@Param("email") String email);
+
+    @Query("""
+    SELECT b FROM Block b
+    WHERE b.blocker.id = :blockerId
+      AND (:cursorId IS NULL OR b.id > :cursorId)
+    ORDER BY b.id ASC
+""")
+    List<Block> findByBlockerIdWithCursor(@Param("blockerId") Long blockerId,
+                                          @Param("cursorId") Long cursorId,
+                                          Pageable pageable);
+
 }
 

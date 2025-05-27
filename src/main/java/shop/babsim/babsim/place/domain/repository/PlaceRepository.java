@@ -1,5 +1,6 @@
 package shop.babsim.babsim.place.domain.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,4 +24,5 @@ public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceCustom
                    OR LOWER(p.businessName) LIKE LOWER(CONCAT('%', :keyword, '%'))
             """)
     Page<PlaceSearchResDto> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
 }

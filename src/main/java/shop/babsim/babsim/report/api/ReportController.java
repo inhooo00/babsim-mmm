@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
+import shop.babsim.babsim.report.api.cursordto.ReportCursorResDto;
 import shop.babsim.babsim.report.api.dto.request.ReportReqDto;
 import shop.babsim.babsim.report.api.dto.response.ReportListResDto;
 import shop.babsim.babsim.report.api.dto.response.ReportResDto;
@@ -40,4 +41,15 @@ public class ReportController implements ReportDocs{
         return new RspTemplate<>(HttpStatus.OK, "내가 작성한 신고 리스트", reportService.findReportByEmail(email,
                 PageRequest.of(page, size)));
     }
+
+    @GetMapping("/my-reports/cursor")
+    public RspTemplate<ReportCursorResDto> findMyReportsWithCursor(
+            @CurrentUserEmail String email,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return new RspTemplate<>(HttpStatus.OK, "커서 기반 내 신고 리스트",
+                reportService.findReportByEmailWithCursor(email, cursorId, size));
+    }
+
 }

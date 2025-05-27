@@ -17,6 +17,7 @@ import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResListDto;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
+import shop.babsim.babsim.review.api.cursordto.ReviewCursorResDto;
 import shop.babsim.babsim.review.api.dto.response.ReviewInfoResDto;
 import shop.babsim.babsim.review.api.dto.response.ReviewListResDto;
 import shop.babsim.babsim.review.api.dto.response.ReviewSaveInfoResDto;
@@ -82,4 +83,34 @@ public interface ReviewDocs {
             @Parameter(description = "페이지 번호", required = true) int page,
             @Parameter(description = "요청할 개수", required = true) int size
     );
+
+    @Operation(summary = "placeId로 커서 기반 리뷰 조회", description = "placeId로 커서 기반으로 리뷰 리스트를 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "리뷰 조회 성공",
+                            content = @Content(schema = @Schema(implementation = ReviewCursorResDto.class))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            })
+    RspTemplate<ReviewCursorResDto> getReviewListWithCursor(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
+            @Parameter(description = "placeId", required = true) String placeId,
+            @Parameter(description = "커서 ID (이전 페이지 마지막 reviewId, 첫 요청 시 생략)", required = false) Long cursorId,
+            @Parameter(hidden = true) int size
+    );
+
+    @Operation(summary = "내 리뷰 커서 기반 조회", description = "내가 작성한 리뷰를 커서 기반으로 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "리뷰 조회 성공",
+                            content = @Content(schema = @Schema(implementation = ReviewCursorResDto.class))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            })
+    RspTemplate<ReviewCursorResDto> getMyReviewListWithCursor(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
+            @Parameter(description = "커서 ID (이전 페이지 마지막 reviewId, 첫 요청 시 생략)", required = false) Long cursorId,
+            @Parameter(hidden = true) int size
+    );
+
 }

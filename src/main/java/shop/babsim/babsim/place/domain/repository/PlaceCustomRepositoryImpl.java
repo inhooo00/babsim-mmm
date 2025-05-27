@@ -1,6 +1,7 @@
 package shop.babsim.babsim.place.domain.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import shop.babsim.babsim.bookmark.domain.QBookmark;
 import shop.babsim.babsim.member.domain.QMember;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
+import shop.babsim.babsim.place.api.dto.response.PlaceSearchResDto;
 import shop.babsim.babsim.place.domain.Place;
 import shop.babsim.babsim.place.domain.QPlace;
 
@@ -133,5 +135,32 @@ public class PlaceCustomRepositoryImpl implements PlaceCustomRepository {
                         bookmarkedIds.contains(p.getPlaceId())
                 ))
                 .toList();
+    }
+
+    @Override
+    public List<PlaceSearchResDto> searchByKeywordWithCursor(String keyword, String cursor, int size) {
+        QPlace place = QPlace.place;
+
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(
+                        place.menu1.containsIgnoreCase(keyword)
+                                .or(place.menu2.containsIgnoreCase(keyword))
+                                .or(place.businessName.containsIgnoreCase(keyword))
+                );
+
+        if (cursor != null) {
+            builder.and(place.placeId.gt(cursor));
+        }
+
+        return queryFactory
+                .select(Projections.constructor(PlaceSearchResDto.class,
+                        place.businessName,
+                        place.placeId
+                ))
+                .from(place)
+                .where(builder)
+                .orderBy(place.placeId.asc())
+                .limit(size + 1)
+                .fetch();
     }
 }

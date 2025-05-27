@@ -3,6 +3,7 @@ package shop.babsim.babsim.review.application;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import shop.babsim.babsim.member.exception.MemberNotFoundException;
 import shop.babsim.babsim.place.domain.Place;
 import shop.babsim.babsim.place.domain.repository.PlaceRepository;
 import shop.babsim.babsim.place.exception.PlaceNotFoundException;
+import shop.babsim.babsim.review.api.cursordto.ReviewCursorResDto;
 import shop.babsim.babsim.review.api.dto.request.ReviewSaveReqDto;
 import shop.babsim.babsim.review.api.dto.response.ReviewInfoResDto;
 import shop.babsim.babsim.review.api.dto.response.ReviewListResDto;
@@ -34,7 +36,6 @@ public class ReviewService {
     private final AwsS3Service awsS3Service;
     private final BlockRepository blockRepository;
 
-    // 리뷰 생성
     @Transactional
     public ReviewSaveInfoResDto save(String email, ReviewSaveReqDto reviewSaveReqDto, List<String> imageUrls) {
         Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
@@ -45,7 +46,6 @@ public class ReviewService {
         return ReviewSaveInfoResDto.of(review, member.getId());
     }
 
-    // 리뷰 개별 조회
     public ReviewInfoResDto findById(Long reviewId) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(ReviewNotFoundException::new);
         String imageUrl = awsS3Service.getFileUrls(review.getFeedImage());
@@ -53,7 +53,6 @@ public class ReviewService {
         return ReviewInfoResDto.of(review, imageUrl);
     }
 
-    // 장소 id로 리뷰 리스트 조회
     public ReviewListResDto findByPlaceIdExcludingBlocked(String email, String placeId, Pageable pageable) {
         List<Long> blockedIds = (email != null && !email.isBlank())
                 ? blockRepository.findBlockedMemberIdsByEmail(email)
@@ -65,8 +64,6 @@ public class ReviewService {
         return ReviewListResDto.of(reviews.getContent(), PageInfoResDto.from(reviews));
     }
 
-
-    // 이메일로 리뷰 리스트 조회
     public ReviewListResDto findByEmail(String email, Pageable pageable) {
         Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
         Page<ReviewInfoResDto> reviews = reviewRepository.findAllByMemberId(member.getId(), pageable);
@@ -76,4 +73,43 @@ public class ReviewService {
                 PageInfoResDto.from(reviews)
         );
     }
+
+    public ReviewCursorResDto findByPlaceIdWithCursor(String email, String placeId, Long cursorId, int size) {
+        List<Review> raw = reviewRepository.findByPlaceIdExcludingBlockedWithCursor(
+                email, placeId, cursorId, PageRequest.of(0, size + 1));
+
+        boolean hasNext = raw.size() > size;
+        List<Review> trimmed = hasNext ? raw.subList(0, size) : raw;
+
+        List<ReviewInfoResDto> data = trimmed.stream()
+                .map(review -> {
+                    String imageUrl = awsS3Service.getFileUrls(review.getFeedImage());
+                    return ReviewInfoResDto.of(review, imageUrl);
+                })
+                .toList();
+
+        Long nextCursor = hasNext ? trimmed.get(trimmed.size() - 1).getId() : null;
+
+        return ReviewCursorResDto.of(data, nextCursor);
+    }
+
+    public ReviewCursorResDto findByEmailWithCursor(String email, Long cursorId, int size) {
+        List<Review> raw = reviewRepository.findByEmailWithCursor(
+                email, cursorId, PageRequest.of(0, size + 1));
+
+        boolean hasNext = raw.size() > size;
+        List<Review> trimmed = hasNext ? raw.subList(0, size) : raw;
+
+        List<ReviewInfoResDto> data = trimmed.stream()
+                .map(review -> {
+                    String imageUrl = awsS3Service.getFileUrls(review.getFeedImage());
+                    return ReviewInfoResDto.of(review, imageUrl);
+                })
+                .toList();
+
+        Long nextCursor = hasNext ? trimmed.get(trimmed.size() - 1).getId() : null;
+
+        return ReviewCursorResDto.of(data, nextCursor);
+    }
+
 }
