@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
 import shop.babsim.babsim.member.api.dto.response.MyPageInfoResDto;
+import shop.babsim.babsim.report.api.cursordto.ReportCursorResDto;
 import shop.babsim.babsim.report.api.dto.request.ReportReqDto;
 import shop.babsim.babsim.report.api.dto.response.ReportListResDto;
 import shop.babsim.babsim.report.api.dto.response.ReportResDto;
@@ -44,4 +45,22 @@ public interface ReportDocs {
             @Parameter(description = "페이지 번호", required = true) int page,
             @Parameter(description = "요청할 개수", required = true) int size
     );
+
+    @Operation(
+            summary = "커서 기반내가 쓴 제보 조회",
+            description = "커서 기반으로 내가 쓴 제보 리스트를 조회합니다. 첫 요청 시 cursorId 없이 호출하고, 이후 응답에 포함된 nextCursor 값을 cursorId로 전달하세요.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "제보 커서 조회 성공",
+                            content = @Content(schema = @Schema(implementation = ReportCursorResDto.class))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            }
+    )
+    RspTemplate<ReportCursorResDto> findMyReportsWithCursor(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
+            @Parameter(description = "커서 ID (이전 응답의 nextCursor)", required = false) Long cursorId,
+            @Parameter(hidden = true) int size
+    );
+
 }

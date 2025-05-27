@@ -1,7 +1,9 @@
 package shop.babsim.babsim.report.application;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +11,7 @@ import shop.babsim.babsim.global.dto.PageInfoResDto;
 import shop.babsim.babsim.member.domain.Member;
 import shop.babsim.babsim.member.domain.repository.MemberRepository;
 import shop.babsim.babsim.member.exception.MemberNotFoundException;
+import shop.babsim.babsim.report.api.cursordto.ReportCursorResDto;
 import shop.babsim.babsim.report.api.dto.request.ReportReqDto;
 import shop.babsim.babsim.report.api.dto.response.ReportListResDto;
 import shop.babsim.babsim.report.api.dto.response.ReportResDto;
@@ -48,4 +51,24 @@ public class ReportService {
                 PageInfoResDto.from(reports)
         );
     }
+
+    public ReportCursorResDto findReportByEmailWithCursor(String email, Long cursorId, int size) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new);
+
+        List<Report> raw = reportRepository.findAllByMemberIdWithCursor(
+                member.getId(), cursorId, PageRequest.of(0, size + 1));
+
+        boolean hasNext = raw.size() > size;
+        List<Report> trimmed = hasNext ? raw.subList(0, size) : raw;
+
+        List<ReportResDto> data = trimmed.stream()
+                .map(ReportResDto::from)
+                .toList();
+
+        Long nextCursor = hasNext ? trimmed.get(trimmed.size() - 1).getId() : null;
+
+        return ReportCursorResDto.of(data, nextCursor);
+    }
+
 }
