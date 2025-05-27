@@ -1,5 +1,6 @@
 package shop.babsim.babsim.member.api;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +14,7 @@ import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
 import shop.babsim.babsim.member.api.dto.request.UpdateProfileReqDto;
 import shop.babsim.babsim.member.api.dto.response.MyPageInfoResDto;
+import shop.babsim.babsim.member.api.dto.response.ProfileInfoResDto;
 import shop.babsim.babsim.member.api.dto.response.UpdateMyPageInfoResDto;
 import shop.babsim.babsim.member.application.MemberService;
 
@@ -55,5 +57,11 @@ public class MemberController implements MemberDocs{
     public RspTemplate<Void> deleteMyProfile(@CurrentUserEmail String email) {
         memberService.deleteMember(email);
         return new RspTemplate<>(HttpStatus.OK, "회원 탈퇴 성공");
+    }
+
+    @GetMapping("/profile-images")
+    public RspTemplate<List<ProfileInfoResDto>> getProfileImages(@CurrentUserEmail String email) {
+        List<ProfileInfoResDto> profiles = memberService.getAvailableProfiles(email);
+        return new RspTemplate<>(HttpStatus.OK, "프로필 이미지 리스트 조회 성공", profiles);
     }
 }

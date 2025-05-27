@@ -20,6 +20,8 @@ import shop.babsim.babsim.member.domain.repository.MemberRepository;
 public class AuthMemberService {
 
     private final MemberRepository memberRepository;
+    private static final String DEFAULT_PROFILE_IMAGE = "/user-image/1.png";
+
 
     @Transactional
     public MemberLoginResDto saveUserInfo(UserInfo userInfo, SocialType provider) {
@@ -44,7 +46,6 @@ public class AuthMemberService {
     }
 
     private Member createMember(UserInfo userInfo, SocialType provider) {
-        String userPicture = getUserPicture(userInfo.picture());
         String name = unionName(userInfo.name(), userInfo.nickname());
 
         return memberRepository.save(
@@ -52,7 +53,7 @@ public class AuthMemberService {
                         .status(Status.ACTIVE)
                         .email(userInfo.email())
                         .name(name)
-                        .picture(userPicture)
+                        .picture(DEFAULT_PROFILE_IMAGE)
                         .socialType(provider)
                         .role(Role.ROLE_USER)
                         .nickname(name)
