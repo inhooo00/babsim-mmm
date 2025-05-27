@@ -92,5 +92,4 @@ public class ReviewController implements ReviewDocs {
         return new RspTemplate<>(HttpStatus.OK, "커서 기반 내 리뷰 조회",
                 reviewService.findByEmailWithCursor(email, cursorId, size));
     }
-
 }
