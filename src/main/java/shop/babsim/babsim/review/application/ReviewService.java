@@ -112,4 +112,17 @@ public class ReviewService {
         return ReviewCursorResDto.of(data, nextCursor);
     }
 
+    @Transactional
+    public ReviewSaveInfoResDto Base64Save(String email, ReviewSaveReqDto reviewSaveReqDto, List<String> imageUrls) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new);
+
+        Place place = placeRepository.findByPlaceId(reviewSaveReqDto.placeId())
+                .orElseThrow(PlaceNotFoundException::new);
+
+        Review review = reviewRepository.save(reviewSaveReqDto.toEntity(member, place, imageUrls));
+
+        return ReviewSaveInfoResDto.of(review, member.getId());
+    }
+
 }
