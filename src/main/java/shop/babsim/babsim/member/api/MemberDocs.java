@@ -6,12 +6,15 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
 import shop.babsim.babsim.member.api.dto.request.UpdateProfileReqDto;
 import shop.babsim.babsim.member.api.dto.response.MyPageInfoResDto;
+import shop.babsim.babsim.member.api.dto.response.ProfileInfoResDto;
+import shop.babsim.babsim.member.api.dto.response.ProfileInfoResListDto;
 import shop.babsim.babsim.member.api.dto.response.UpdateMyPageInfoResDto;
 
 @Tag(name = "[유저 API]", description = "유저 관련 API")
@@ -72,4 +75,16 @@ public interface MemberDocs {
             })
     RspTemplate<Void> deleteMyProfile(
             @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email);
+
+    @Operation(summary = "프로필 이미지 목록 조회", description = "사용 가능한 프로필 이미지 리스트를 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "프로필 이미지 리스트 조회 성공",
+                            content = @Content(schema = @Schema(implementation = ProfileInfoResListDto.class))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            })
+    RspTemplate<ProfileInfoResListDto> getProfileImages(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email);
+
 }

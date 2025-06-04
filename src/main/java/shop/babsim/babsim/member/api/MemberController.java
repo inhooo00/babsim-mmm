@@ -15,6 +15,7 @@ import shop.babsim.babsim.global.template.RspTemplate;
 import shop.babsim.babsim.member.api.dto.request.UpdateProfileReqDto;
 import shop.babsim.babsim.member.api.dto.response.MyPageInfoResDto;
 import shop.babsim.babsim.member.api.dto.response.ProfileInfoResDto;
+import shop.babsim.babsim.member.api.dto.response.ProfileInfoResListDto;
 import shop.babsim.babsim.member.api.dto.response.UpdateMyPageInfoResDto;
 import shop.babsim.babsim.member.application.MemberService;
 
@@ -60,8 +61,8 @@ public class MemberController implements MemberDocs{
     }
 
     @GetMapping("/profile-images")
-    public RspTemplate<List<ProfileInfoResDto>> getProfileImages(@CurrentUserEmail String email) {
-        List<ProfileInfoResDto> profiles = memberService.getAvailableProfiles(email);
+    public RspTemplate<ProfileInfoResListDto> getProfileImages(@CurrentUserEmail String email) {
+        ProfileInfoResListDto profiles = memberService.getAvailableProfiles(email);
         return new RspTemplate<>(HttpStatus.OK, "프로필 이미지 리스트 조회 성공", profiles);
     }
 }

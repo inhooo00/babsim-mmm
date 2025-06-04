@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.member.api.dto.request.UpdateProfileReqDto;
 import shop.babsim.babsim.member.api.dto.response.MyPageInfoResDto;
 import shop.babsim.babsim.member.api.dto.response.ProfileInfoResDto;
+import shop.babsim.babsim.member.api.dto.response.ProfileInfoResListDto;
 import shop.babsim.babsim.member.api.dto.response.UpdateMyPageInfoResDto;
 import shop.babsim.babsim.member.domain.Member;
 import shop.babsim.babsim.member.domain.repository.MemberRepository;
@@ -60,10 +61,12 @@ public class MemberService {
                 .orElseThrow(MemberNotFoundException::new));
     }
 
-    public List<ProfileInfoResDto> getAvailableProfiles(String email) {
+    public ProfileInfoResListDto getAvailableProfiles(String email) {
         int reviewCount = reviewRepository.getReviewCountByEmail(email);
-        return generateProfiles(reviewCount);
+        List<ProfileInfoResDto> profiles = generateProfiles(reviewCount);
+        return ProfileInfoResListDto.from(profiles);
     }
+
 
     private List<ProfileInfoResDto> generateProfiles(int reviewCount) {
         return List.of(
