@@ -45,7 +45,7 @@ public class BookmarkController implements BookmarkDocs{
     @GetMapping("/top")
     public RspTemplate<BookmarkResListDto> findTopPlacesByBookmarkCount(
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size
+            @RequestParam(name = "size", defaultValue = "5") int size
     ) {
         return new RspTemplate<>(HttpStatus.OK, "찜 개수 기준 맛집 추천 조회 성공",
                 bookmarkService.findTopPlacesByBookmarkCount(PageRequest.of(page, size)));

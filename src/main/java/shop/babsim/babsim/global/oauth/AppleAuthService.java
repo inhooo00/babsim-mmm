@@ -31,6 +31,11 @@ public class AppleAuthService implements AuthService {
         return null;
     }
 
+    @Override
+    public void unlink(String accessToken) {
+
+    }
+
     @Transactional
     @Override
     public UserInfo getUserInfo(String idToken) {
@@ -52,4 +57,5 @@ public class AppleAuthService implements AuthService {
     private String getPayload(String idToken) {
         return idToken.split(JWT_DELIMITER)[1];
     }
+
 }
