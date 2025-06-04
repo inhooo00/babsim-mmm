@@ -25,4 +25,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceCustom
             """)
     Page<PlaceSearchResDto> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
+    @Query(value = "SELECT * FROM place WHERE province = :province ORDER BY RAND() LIMIT 1", nativeQuery = true)
+    Optional<Place> findRandomPlaceByProvince(@Param("province") String province);
+
 }
