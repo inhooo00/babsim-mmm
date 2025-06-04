@@ -90,13 +90,17 @@ public class AwsS3Service {
 
         for (String base64 : base64Images) {
             try {
-                String[] parts = base64.split(",");
-                String meta = parts[0];
-                String base64Data = parts[1];
+                String contentType = "image/jpeg";
+                String base64Data = base64;
 
-                String contentType = meta.substring(meta.indexOf(":") + 1, meta.indexOf(";"));
+                if (base64.contains(",")) {
+                    String[] parts = base64.split(",", 2);
+                    String meta = parts[0];
+                    base64Data = parts[1];
+                    contentType = meta.substring(meta.indexOf(":") + 1, meta.indexOf(";"));
+                }
+
                 byte[] imageBytes = Base64.getDecoder().decode(base64Data);
-
                 String fileName = UUID.randomUUID() + getExtensionFromContentType(contentType);
 
                 ObjectMetadata metadata = new ObjectMetadata();

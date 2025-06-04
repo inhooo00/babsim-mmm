@@ -18,6 +18,7 @@ import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResListDto;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
 import shop.babsim.babsim.review.api.cursordto.ReviewCursorResDto;
+import shop.babsim.babsim.review.api.dto.request.ReviewSaveWithBase64Dto;
 import shop.babsim.babsim.review.api.dto.response.ReviewInfoResDto;
 import shop.babsim.babsim.review.api.dto.response.ReviewListResDto;
 import shop.babsim.babsim.review.api.dto.response.ReviewSaveInfoResDto;
@@ -111,6 +112,31 @@ public interface ReviewDocs {
             @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
             @Parameter(description = "커서 ID (이전 페이지 마지막 reviewId, 첫 요청 시 생략)", required = false) Long cursorId,
             @Parameter(hidden = true) int size
+    );
+
+    @Operation(summary = "Base64 리뷰 등록", description = "Base64 이미지와 함께 리뷰를 등록합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "리뷰 생성 성공",
+                            content = @Content(schema = @Schema(implementation = ReviewSaveInfoResDto.class))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            })
+    RspTemplate<ReviewSaveInfoResDto> saveWithBase64(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
+            @Parameter(description = """
+                    {
+                        "rating": 2.5,
+                        "content": "사진동아리 구인",
+                    "placeId":"ChIJOxTypzj7ZTUREmXR3yLXUdE",
+                      "reviewImages": [
+                        "/9j/4AAQSkZJRgABAQAASABIAAD/....",
+                        "/9j/4AAQSkZJRgABAQAASABIAAD/...."
+                    }
+                         형식의 JSON을 전송하세요.
+                    """, required = true,
+                    content = @Content(schema = @Schema(implementation = ReviewSaveWithBase64Dto.class)))
+            ReviewSaveWithBase64Dto request
     );
 
 }

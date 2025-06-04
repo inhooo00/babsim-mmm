@@ -96,12 +96,12 @@ public class ReviewController implements ReviewDocs {
                 reviewService.findByEmailWithCursor(email, cursorId, size));
     }
 
-    @PostMapping(value = "/base64", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/base64")
     public RspTemplate<ReviewSaveInfoResDto> saveWithBase64(@CurrentUserEmail String email,
                                                             @RequestBody ReviewSaveWithBase64Dto request) {
         List<String> imageUrls = awsS3Service.uploadBase64Images(request.reviewImages());
 
         return new RspTemplate<>(HttpStatus.CREATED, "리뷰 생성",
-                reviewService.Base64Save(email, request.reviewSaveReqDto(), imageUrls));
+                reviewService.Base64Save(email, request, imageUrls));
     }
 }
