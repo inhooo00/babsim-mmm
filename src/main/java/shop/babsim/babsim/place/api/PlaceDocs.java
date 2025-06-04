@@ -10,6 +10,7 @@ import shop.babsim.babsim.global.template.RspTemplate;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceSearchCursorResDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
+import shop.babsim.babsim.place.api.dto.response.PlaceRecommendResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResListDto;
@@ -102,5 +103,21 @@ public interface PlaceDocs {
             @Parameter(description = "커서 ID (이전 페이지 마지막 placeId, 첫 요청 시 생략)", required = false) String cursorId,
             @Parameter(description = "요청할 데이터 개수 (기본값: 5)", hidden = true) int size
     );
+
+    @Operation(
+            summary = "지역별 랜덤 음식점 추천",
+            description = "14개 시도 중 각 지역별로 하나씩 랜덤으로 음식점을 추천합니다.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "지역별 음식점 추천 성공",
+                            content = @Content(schema = @Schema(implementation = PlaceRecommendResListDto.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            }
+    )
+    RspTemplate<PlaceRecommendResListDto> getRandomRecommendationsByRegion();
 
 }
