@@ -13,11 +13,11 @@ import shop.babsim.babsim.global.template.RspTemplate;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceSearchCursorResDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
+import shop.babsim.babsim.place.api.dto.response.PlaceRecommendResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResListDto;
 import shop.babsim.babsim.place.application.PlaceService;
-import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
 
 @RestController
 @RequiredArgsConstructor
@@ -76,5 +76,14 @@ public class PlaceController implements PlaceDocs {
         return new RspTemplate<>(HttpStatus.OK,
                 "장소 커서 기반 검색 성공",
                 placeService.getPlacesByMenuWithCursor(keyword, cursorId, size));
+    }
+
+    @GetMapping("/recommend/random-region")
+    public RspTemplate<PlaceRecommendResListDto> getRandomRecommendationsByRegion() {
+        return new RspTemplate<>(
+                HttpStatus.OK,
+                "지역별 랜덤 장소 추천 성공",
+                placeService.getRandomPlaceRecommendationsByRegion()
+        );
     }
 }

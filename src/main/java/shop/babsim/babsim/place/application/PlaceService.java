@@ -1,6 +1,8 @@
 package shop.babsim.babsim.place.application;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,12 +14,15 @@ import shop.babsim.babsim.global.dto.PageInfoResDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceSearchCursorResDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
+import shop.babsim.babsim.place.api.dto.response.PlaceRecommendResDto;
+import shop.babsim.babsim.place.api.dto.response.PlaceRecommendResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceResListDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchBookmarkResDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResDto;
 import shop.babsim.babsim.place.api.dto.response.PlaceSearchResListDto;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
 import shop.babsim.babsim.place.domain.Place;
+import shop.babsim.babsim.place.domain.Region;
 import shop.babsim.babsim.place.domain.repository.PlaceRepository;
 import shop.babsim.babsim.place.exception.PlaceNotFoundException;
 import shop.babsim.babsim.review.domain.repository.ReviewRepository;
@@ -78,4 +83,31 @@ public class PlaceService {
 
         return PlaceSearchCursorResDto.of(trimmed, nextCursor);
     }
+
+    public PlaceRecommendResListDto getRandomPlaceRecommendationsByRegion() {
+        List<PlaceRecommendResDto> result = Region.all().stream()
+                .map(region -> placeRepository.findRandomPlaceByProvince(region.getProvinceName())
+                        .map(this::toPlaceRecommendResDto)
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        return PlaceRecommendResListDto.from(result);
+    }
+
+    private PlaceRecommendResDto toPlaceRecommendResDto(Place place) {
+        Double rating = reviewRepository.getRatingAvgByPlaceId(place.getPlaceId());
+
+        return new PlaceRecommendResDto(
+                place.getProvince(),
+                place.getBusinessName(),
+                place.getAddress(),
+                place.getMenu1(),
+                place.getPrice1(),
+                place.getPlaceId(),
+                rating,
+                place.getPhotoUrls()
+        );
+    }
+
 }
