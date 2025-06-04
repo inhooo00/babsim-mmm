@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
+import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceSearchCursorResDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
@@ -85,5 +86,13 @@ public class PlaceController implements PlaceDocs {
                 "지역별 랜덤 장소 추천 성공",
                 placeService.getRandomPlaceRecommendationsByRegion()
         );
+    }
+
+    @GetMapping("/place-id/cursor")
+    public RspTemplate<PlaceCursorResDto> getCursorPlaceCsvDataById(@CurrentUserEmail String email,
+                                                              @RequestParam("placeId") String placeId) {
+        return new RspTemplate<>(HttpStatus.OK,
+                "장소 개별 조회 성공",
+                placeService.getCursorPlaceCsvDataByPlaceId(email, placeId));
     }
 }

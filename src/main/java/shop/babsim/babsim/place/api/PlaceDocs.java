@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import shop.babsim.babsim.global.template.RspTemplate;
+import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceSearchCursorResDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
@@ -120,4 +121,17 @@ public interface PlaceDocs {
     )
     RspTemplate<PlaceRecommendResListDto> getRandomRecommendationsByRegion();
 
+    @Operation(summary = "장소 ID로 개별 장소 조회 (커서 응답형식)", description = "장소 ID로 장소를 조회하고, 응답을 커서 기반 형식(PlaceCursorResDto)으로 반환합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "장소 조회 성공",
+                            content = @Content(schema = @Schema(implementation = PlaceCursorResDto.class))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "404", description = "장소를 찾을 수 없음"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            })
+    RspTemplate<PlaceCursorResDto> getCursorPlaceCsvDataById(
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
+            @Parameter(description = "조회할 장소 ID", required = true) String placeId
+    );
 }
