@@ -14,6 +14,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceCustom
 
     Optional<Place> findByBusinessName(String businessName);
 
+    @Query(value = "SELECT * FROM place WHERE place_id = :placeId LIMIT 1", nativeQuery = true)
     Optional<Place> findByPlaceId(String placeId);
 
     @Query("""
