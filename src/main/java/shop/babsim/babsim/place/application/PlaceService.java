@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.bookmark.domain.repository.BookmarkRepository;
 import shop.babsim.babsim.global.dto.PageInfoResDto;
+import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceCursorResListDto;
 import shop.babsim.babsim.place.api.cursordto.response.PlaceSearchCursorResDto;
 import shop.babsim.babsim.place.api.dto.request.LocationCoordinatesDto;
@@ -108,6 +109,17 @@ public class PlaceService {
                 rating,
                 place.getPhotoUrls()
         );
+    }
+
+    public PlaceCursorResDto getCursorPlaceCsvDataByPlaceId(String email, String placeId) {
+        Place place = placeRepository.findByPlaceId(placeId)
+                .orElseThrow(PlaceNotFoundException::new);
+
+        Double ratingAvg = reviewRepository.getRatingAvgByPlaceId(placeId);
+        boolean isBookmarked = (email != null && !email.isBlank()) &&
+                bookmarkRepository.isBookmarked(email, placeId);
+
+        return PlaceCursorResDto.of(PlaceSearchBookmarkResDto.of(place, isBookmarked, ratingAvg));
     }
 
 }
