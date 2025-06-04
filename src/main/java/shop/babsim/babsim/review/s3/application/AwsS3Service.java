@@ -5,10 +5,12 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -54,7 +56,6 @@ public class AwsS3Service {
         return fullUrlList;
     }
 
-
     public String createFileName(String fileName){
         return UUID.randomUUID().toString().concat(getFileExtension(fileName));
     }
@@ -82,4 +83,52 @@ public class AwsS3Service {
                 .collect(Collectors.joining(","));
     }
 
+    public List<String> uploadBase64Images(List<String> base64Images) {
+        if (base64Images == null || base64Images.isEmpty()) return List.of();
+
+        List<String> uploadedUrls = new ArrayList<>();
+
+        for (String base64 : base64Images) {
+            try {
+                String contentType = "image/jpeg";
+                String base64Data = base64;
+
+                if (base64.contains(",")) {
+                    String[] parts = base64.split(",", 2);
+                    String meta = parts[0];
+                    base64Data = parts[1];
+                    contentType = meta.substring(meta.indexOf(":") + 1, meta.indexOf(";"));
+                }
+
+                byte[] imageBytes = Base64.getDecoder().decode(base64Data);
+                String fileName = UUID.randomUUID() + getExtensionFromContentType(contentType);
+
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentLength(imageBytes.length);
+                metadata.setContentType(contentType);
+
+                try (InputStream inputStream = new ByteArrayInputStream(imageBytes)) {
+                    amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata)
+                            .withCannedAcl(CannedAccessControlList.PublicRead));
+                }
+
+                String fullUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, fileName);
+                uploadedUrls.add(fullUrl);
+
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Base64 업로드 실패: " + e.getMessage());
+            }
+        }
+
+        return uploadedUrls;
+    }
+
+    private String getExtensionFromContentType(String contentType) {
+        return switch (contentType) {
+            case "image/jpeg" -> ".jpg";
+            case "image/png" -> ".png";
+            case "image/gif" -> ".gif";
+            default -> "";
+        };
+    }
 }

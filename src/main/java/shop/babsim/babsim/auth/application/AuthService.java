@@ -9,4 +9,6 @@ public interface AuthService {
     String getProvider();
 
     IdTokenResDto getIdToken(String code);
+
+    void unlink(String accessToken);
 }

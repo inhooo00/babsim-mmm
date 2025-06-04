@@ -17,6 +17,7 @@ import shop.babsim.babsim.place.domain.repository.PlaceRepository;
 import shop.babsim.babsim.place.exception.PlaceNotFoundException;
 import shop.babsim.babsim.review.api.cursordto.ReviewCursorResDto;
 import shop.babsim.babsim.review.api.dto.request.ReviewSaveReqDto;
+import shop.babsim.babsim.review.api.dto.request.ReviewSaveWithBase64Dto;
 import shop.babsim.babsim.review.api.dto.response.ReviewInfoResDto;
 import shop.babsim.babsim.review.api.dto.response.ReviewListResDto;
 import shop.babsim.babsim.review.api.dto.response.ReviewSaveInfoResDto;
@@ -110,6 +111,20 @@ public class ReviewService {
         Long nextCursor = hasNext ? trimmed.get(trimmed.size() - 1).getId() : null;
 
         return ReviewCursorResDto.of(data, nextCursor);
+    }
+
+    @Transactional
+    public ReviewSaveInfoResDto Base64Save(String email, ReviewSaveWithBase64Dto reviewSaveWithBase64Dto, List<String> imageUrls) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new);
+
+        Place place = placeRepository.findByPlaceId(reviewSaveWithBase64Dto.placeId())
+                .orElseThrow(PlaceNotFoundException::new);
+
+        Review review = reviewRepository.save(reviewSaveWithBase64Dto
+                .toEntity(member, place, imageUrls));
+
+        return ReviewSaveInfoResDto.of(review, member.getId());
     }
 
 }

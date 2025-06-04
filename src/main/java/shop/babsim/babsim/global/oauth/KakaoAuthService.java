@@ -28,6 +28,7 @@ public class KakaoAuthService implements AuthService {
 
     private static final String KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token";
     private static final String JWT_DELIMITER = "\\.";
+    private static final String KAKAO_UNLINK_URL = "https://kapi.kakao.com/v1/user/unlink";
 
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
@@ -85,5 +86,31 @@ public class KakaoAuthService implements AuthService {
 
     private String getPayload(String idToken) {
         return idToken.split(JWT_DELIMITER)[1];
+    }
+
+    public void unlink(String authorizationHeader) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", authorizationHeader);
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    KAKAO_UNLINK_URL,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new RuntimeException("카카오 회원 해제 실패: " + response.getStatusCode());
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("카카오 unlink 호출 중 오류 발생: " + e.getMessage(), e);
+        }
     }
 }
