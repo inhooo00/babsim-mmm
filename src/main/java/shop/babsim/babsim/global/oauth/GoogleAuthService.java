@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import shop.babsim.babsim.auth.api.dto.request.IdTokenAndRefreshTokenDto;
 import shop.babsim.babsim.auth.api.dto.response.IdTokenResDto;
 import shop.babsim.babsim.auth.api.dto.response.UserInfo;
 import shop.babsim.babsim.auth.application.AuthService;
@@ -32,7 +33,7 @@ public class GoogleAuthService implements AuthService {
     private final GoogleOAuthProperties googleOAuthProperties;
 
     @Override
-    public IdTokenResDto getIdToken(String code) {
+    public IdTokenAndRefreshTokenDto getToken(String code) {
         Map<String, String> params = Map.of(
                 "code", code,
                 "scope", "https://www.googleapis.com/auth/userinfo.profile " +
@@ -44,8 +45,24 @@ public class GoogleAuthService implements AuthService {
         );
 
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(GOOGLE_TOKEN_URL, params, String.class);
-        return parseGoogleIdToken(responseEntity);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            try {
+                JsonNode jsonNode = objectMapper.readTree(responseEntity.getBody());
+
+                String idToken = jsonNode.has("id_token") ? jsonNode.get("id_token").asText() : null;
+                String refreshToken = jsonNode.has("refresh_token") ? jsonNode.get("refresh_token").asText() : null;
+
+                return new IdTokenAndRefreshTokenDto(idToken, refreshToken);
+
+            } catch (Exception e) {
+                throw new OAuthException("Google ID 토큰을 파싱하는 데 실패했습니다.");
+            }
+        }
+
+        throw new OAuthException("Google 토큰을 가져오지 못했습니다.");
     }
+
 
     @Override
     public String getProvider() {
@@ -86,7 +103,7 @@ public class GoogleAuthService implements AuthService {
     }
 
     @Override
-    public void unlink(String accessToken) {
+    public void unlink(String email, String accessToken) {
 
     }
 }

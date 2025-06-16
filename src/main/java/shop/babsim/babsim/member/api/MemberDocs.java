@@ -65,17 +65,6 @@ public interface MemberDocs {
             @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
             @Parameter(description = "updateProfileReqDto", required = true) UpdateProfileReqDto updateProfileReqDto);
 
-    @Operation(summary = "회원 탈퇴", description = "회원을 탈퇴시킵니다",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "탈퇴 성공",
-                            content = @Content(schema = @Schema(implementation = Void.class))),
-                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-                    @ApiResponse(responseCode = "401", description = "인증 실패"),
-                    @ApiResponse(responseCode = "500", description = "서버 오류")
-            })
-    RspTemplate<Void> deleteMyProfile(
-            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email);
-
     @Operation(summary = "프로필 이미지 목록 조회", description = "사용 가능한 프로필 이미지 리스트를 조회합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "프로필 이미지 리스트 조회 성공",

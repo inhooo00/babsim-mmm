@@ -33,7 +33,7 @@ public class CurrentUserEmailArgumentResolver implements HandlerMethodArgumentRe
 
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
-            TokenReqDto tokenReqDto = new TokenReqDto(token);
+            TokenReqDto tokenReqDto = new TokenReqDto(token, "");
 
             return tokenProvider.getUserEmailFromToken(tokenReqDto);
         }

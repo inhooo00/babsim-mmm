@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import shop.babsim.babsim.auth.api.dto.request.IdTokenAndRefreshTokenDto;
 import shop.babsim.babsim.auth.api.dto.request.RefreshTokenReqDto;
 import shop.babsim.babsim.auth.api.dto.request.TokenReqDto;
 import shop.babsim.babsim.auth.api.dto.response.IdTokenResDto;
@@ -21,6 +22,7 @@ import shop.babsim.babsim.auth.application.AuthMemberService;
 import shop.babsim.babsim.auth.application.AuthService;
 import shop.babsim.babsim.auth.application.AuthServiceFactory;
 import shop.babsim.babsim.auth.application.TokenService;
+import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.jwt.api.dto.TokenDto;
 import shop.babsim.babsim.global.template.RspTemplate;
 import shop.babsim.babsim.member.domain.SocialType;
@@ -29,17 +31,17 @@ import shop.babsim.babsim.member.domain.SocialType;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class AuthController implements AuthDocs{
+public class AuthController implements AuthDocs {
 
     private final AuthServiceFactory authServiceFactory;
     private final AuthMemberService memberService;
     private final TokenService tokenService;
 
     @GetMapping("oauth2/callback/{provider}")
-    public IdTokenResDto callback(@PathVariable(name = "provider") String provider,
-                                  @RequestParam(name = "code") String code) {
+    public IdTokenAndRefreshTokenDto callback(@PathVariable(name = "provider") String provider,
+                                              @RequestParam(name = "code") String code) {
         AuthService authService = authServiceFactory.getAuthService(provider);
-        return authService.getIdToken(code);
+        return authService.getToken(code);
     }
 
     @PostMapping("/{provider}/token")
@@ -50,7 +52,7 @@ public class AuthController implements AuthDocs{
         UserInfo userInfo = authService.getUserInfo(tokenReqDto.authCode());
 
         MemberLoginResDto getMemberDto = memberService.saveUserInfo(userInfo,
-                SocialType.valueOf(provider.toUpperCase()));
+                SocialType.valueOf(provider.toUpperCase()), tokenReqDto.providerRefreshToken());
         TokenDto getToken = tokenService.getToken(getMemberDto);
 
         return new RspTemplate<>(HttpStatus.OK, "토큰 발급", getToken);
@@ -64,11 +66,11 @@ public class AuthController implements AuthDocs{
     }
 
     @PostMapping("/{provider}/unlink")
-    public RspTemplate<String> unlinkSocial(@PathVariable String provider,
-                                            @RequestHeader("Authorization") String accessToken) {
+    public RspTemplate<String> unlinkSocial(@CurrentUserEmail String email,
+                                            @PathVariable String provider,
+                                            @RequestBody RefreshTokenReqDto refreshTokenReqDto) {
         AuthService authService = authServiceFactory.getAuthService(provider);
-        authService.unlink(accessToken);
+        authService.unlink(email, refreshTokenReqDto.refreshToken());
         return new RspTemplate<>(HttpStatus.OK, provider.toUpperCase() + " 계정 연결 해제", "연결 해제 성공");
     }
-
 }

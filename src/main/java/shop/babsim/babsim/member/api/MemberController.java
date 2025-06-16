@@ -54,12 +54,6 @@ public class MemberController implements MemberDocs{
                 memberService.updateMyProfile(email, updateProfileReqDto));
     }
 
-    @DeleteMapping()
-    public RspTemplate<Void> deleteMyProfile(@CurrentUserEmail String email) {
-        memberService.deleteMember(email);
-        return new RspTemplate<>(HttpStatus.OK, "회원 탈퇴 성공");
-    }
-
     @GetMapping("/profile-images")
     public RspTemplate<ProfileInfoResListDto> getProfileImages(@CurrentUserEmail String email) {
         ProfileInfoResListDto profiles = memberService.getAvailableProfiles(email);

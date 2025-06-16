@@ -7,6 +7,7 @@ import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shop.babsim.babsim.auth.api.dto.request.IdTokenAndRefreshTokenDto;
 import shop.babsim.babsim.auth.api.dto.response.IdTokenResDto;
 import shop.babsim.babsim.auth.api.dto.response.UserInfo;
 import shop.babsim.babsim.auth.application.AuthService;
@@ -27,12 +28,12 @@ public class AppleAuthService implements AuthService {
     }
 
     @Override
-    public IdTokenResDto getIdToken(String code) {
+    public IdTokenAndRefreshTokenDto getToken(String code) {
         return null;
     }
 
     @Override
-    public void unlink(String accessToken) {
+    public void unlink(String email, String accessToken) {
 
     }
 

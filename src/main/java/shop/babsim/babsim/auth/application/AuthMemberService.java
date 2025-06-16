@@ -24,10 +24,10 @@ public class AuthMemberService {
 
 
     @Transactional
-    public MemberLoginResDto saveUserInfo(UserInfo userInfo, SocialType provider) {
+    public MemberLoginResDto saveUserInfo(UserInfo userInfo, SocialType provider, String providerRefreshToken) {
         validateNotFoundEmail(userInfo.email());
 
-        Member member = getExistingMemberOrCreateNew(userInfo, provider);
+        Member member = getExistingMemberOrCreateNew(userInfo, provider, providerRefreshToken);
 
         validateSocialType(member, provider);
 
@@ -40,12 +40,12 @@ public class AuthMemberService {
         }
     }
 
-    private Member getExistingMemberOrCreateNew(UserInfo userInfo, SocialType provider) {
+    private Member getExistingMemberOrCreateNew(UserInfo userInfo, SocialType provider, String providerRefreshToken) {
         return memberRepository.findByEmail(userInfo.email())
-                .orElseGet(() -> createMember(userInfo, provider));
+                .orElseGet(() -> createMember(userInfo, provider, providerRefreshToken));
     }
 
-    private Member createMember(UserInfo userInfo, SocialType provider) {
+    private Member createMember(UserInfo userInfo, SocialType provider, String providerRefreshToken) {
         String name = unionName(userInfo.name(), userInfo.nickname());
 
         return memberRepository.save(
@@ -58,6 +58,7 @@ public class AuthMemberService {
                         .role(Role.ROLE_USER)
                         .nickname(name)
                         .introduction("")
+                        .providerRefreshToken(providerRefreshToken)
                         .build()
         );
     }
