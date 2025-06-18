@@ -17,7 +17,9 @@ public record ReviewInfoResDto(
         Long reviewId,
         LocalDateTime createdAt,
         String memberName,
-        String memberImage
+        String memberImage,
+        String businessName,
+        String placeId
 ) {
     public static ReviewInfoResDto of(Review review, String feedImage) {
 
@@ -31,6 +33,8 @@ public record ReviewInfoResDto(
                 .createdAt(review.getCreatedAt())
                 .memberName(review.getMember().getName())
                 .memberImage(review.getMember().getPicture())
+                .businessName(review.getPlace().getBusinessName())
+                .placeId(review.getPlace().getPlaceId())
                 .build();
     }
 
