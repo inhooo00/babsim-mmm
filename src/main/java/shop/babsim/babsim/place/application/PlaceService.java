@@ -99,16 +99,7 @@ public class PlaceService {
     private PlaceRecommendResDto toPlaceRecommendResDto(Place place) {
         Double rating = reviewRepository.getRatingAvgByPlaceId(place.getPlaceId());
 
-        return new PlaceRecommendResDto(
-                place.getProvince(),
-                place.getBusinessName(),
-                place.getAddress(),
-                place.getMenu1(),
-                place.getPrice1(),
-                place.getPlaceId(),
-                rating,
-                place.getPhotoUrls()
-        );
+        return PlaceRecommendResDto.of(place, rating);
     }
 
     public PlaceCursorResDto getCursorPlaceCsvDataByPlaceId(String email, String placeId) {

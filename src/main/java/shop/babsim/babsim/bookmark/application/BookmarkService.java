@@ -46,7 +46,7 @@ public class BookmarkService {
         List<BookmarkResDto> bookmarkResDtos = bookmarks.stream()
                 .map(bookmark -> {
                     Double averageRating = findAverageRatingByPlaceId(bookmark.getPlace().getPlaceId());
-                    return BookmarkResDto.from(bookmark, averageRating);
+                    return BookmarkResDto.of(bookmark, averageRating);
                 })
                 .toList();
 
@@ -65,7 +65,7 @@ public class BookmarkService {
         List<BookmarkResDto> bookmarkResDtos = topPlaces.stream()
                 .map(bookmark -> {
                     Double averageRating = findAverageRatingByPlaceId(bookmark.getPlaceId());
-                    return BookmarkResDto.from(bookmark, averageRating);
+                    return BookmarkResDto.of(bookmark, averageRating);
                 })
                 .toList();
 
@@ -81,7 +81,7 @@ public class BookmarkService {
         List<Bookmark> trimmed = hasNext ? rawResults.subList(0, size) : rawResults;
 
         List<BookmarkResDto> data = trimmed.stream()
-                .map(b -> BookmarkResDto.from(b, findAverageRatingByPlaceId(b.getPlace().getPlaceId())))
+                .map(b -> BookmarkResDto.of(b, findAverageRatingByPlaceId(b.getPlace().getPlaceId())))
                 .toList();
 
         Long nextCursor = hasNext ? trimmed.get(trimmed.size() - 1).getId() : null;
