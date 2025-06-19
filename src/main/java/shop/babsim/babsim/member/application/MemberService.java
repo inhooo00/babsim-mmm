@@ -71,11 +71,11 @@ public class MemberService {
     private List<ProfileInfoResDto> generateProfiles(int reviewCount) {
         return List.of(
                 createProfile(1, "밥심", reviewCount >= 0),
-                createProfile(1, "쌀알", reviewCount >= 0),
-                createProfile(2, "밥그릇", reviewCount >= 3),
-                createProfile(3, "맛잘알", reviewCount >= 10),
-                createProfile(4, "밥도둑", reviewCount >= 20),
-                createProfile(5, "밥심대장", reviewCount >= 30)
+                createProfile(2, "쌀알", reviewCount >= 0),
+                createProfile(3, "밥그릇", reviewCount >= 3),
+                createProfile(4, "맛잘알", reviewCount >= 10),
+                createProfile(5, "밥도둑", reviewCount >= 20),
+                createProfile(6, "밥심대장", reviewCount >= 30)
         );
     }
 

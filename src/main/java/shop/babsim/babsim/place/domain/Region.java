@@ -12,11 +12,14 @@ public enum Region {
     CHUNGCHEONG_S("충청남도"),
     GYEONGSANG_N("경상북도"),
     GYEONGSANG_S("경상남도"),
+    JEOLLABUK("전라북도"),
+    JEOLLANAM("전라남도"),
     JEJU("제주특별자치도"),
     DAEJEON("대전광역시"),
     DAEGU("대구광역시"),
     GWANGJU("광주광역시"),
     ULSAN("울산광역시"),
+    SEJONG("세종특별자치시"),
     BUSAN("부산광역시");
 
     private final String provinceName;
