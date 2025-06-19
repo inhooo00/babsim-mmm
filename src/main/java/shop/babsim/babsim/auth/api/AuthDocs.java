@@ -67,10 +67,6 @@ public interface AuthDocs {
             }
     )
     RspTemplate<String> unlinkSocial(
-            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email,
-            @Parameter(description = "OAuth2 Provider (예: kakao, google)", required = true) String provider,
-            @Parameter(description = "OAuth2 리프레시 토큰 요청 객체", required = true,
-                    content = @Content(schema = @Schema(implementation = RefreshTokenReqDto.class)))
-            RefreshTokenReqDto refreshTokenReqDto
+            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email
     );
 }

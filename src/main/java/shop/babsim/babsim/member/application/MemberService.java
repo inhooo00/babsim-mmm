@@ -67,7 +67,6 @@ public class MemberService {
         return ProfileInfoResListDto.from(profiles);
     }
 
-
     private List<ProfileInfoResDto> generateProfiles(int reviewCount) {
         return List.of(
                 createProfile(1, "밥심", reviewCount >= 0),

@@ -103,7 +103,7 @@ public class GoogleAuthService implements AuthService {
     }
 
     @Override
-    public void unlink(String email, String accessToken) {
+    public void unlink(String email) {
 
     }
 }

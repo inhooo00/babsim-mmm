@@ -11,5 +11,5 @@ public interface AuthService {
 
     IdTokenAndRefreshTokenDto getToken(String code);
 
-    void unlink(String email, String accessToken);
+    void unlink(String email);
 }

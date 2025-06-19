@@ -20,7 +20,10 @@ import shop.babsim.babsim.auth.application.AuthService;
 import shop.babsim.babsim.global.oauth.config.KakaoOAuthProperties;
 import shop.babsim.babsim.global.oauth.exception.OAuthException;
 import shop.babsim.babsim.member.application.MemberService;
+import shop.babsim.babsim.member.domain.Member;
 import shop.babsim.babsim.member.domain.SocialType;
+import shop.babsim.babsim.member.domain.repository.MemberRepository;
+import shop.babsim.babsim.member.exception.MemberNotFoundException;
 
 @Slf4j
 @Service
@@ -36,6 +39,7 @@ public class KakaoAuthService implements AuthService {
     private final RestTemplate restTemplate;
     private final KakaoOAuthProperties kakaoOAuthProperties;
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     @Override
     public IdTokenAndRefreshTokenDto getToken(String code) {
@@ -100,12 +104,15 @@ public class KakaoAuthService implements AuthService {
 
     @Override
     @Transactional
-    public void unlink(String email, String refreshToken) {
-        if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
-            refreshToken = refreshToken.substring(7);
+    public void unlink(String email) {
+        String providerRefreshToken = memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new).getProviderRefreshToken();
+
+        if (providerRefreshToken != null && providerRefreshToken.startsWith("Bearer ")) {
+            providerRefreshToken = providerRefreshToken.substring(7);
         }
 
-        String accessToken = refreshAccessToken(refreshToken);
+        String accessToken = refreshAccessToken(providerRefreshToken);
         unlinkWithAccessToken("Bearer " + accessToken);
         memberService.deleteMember(email);
     }
