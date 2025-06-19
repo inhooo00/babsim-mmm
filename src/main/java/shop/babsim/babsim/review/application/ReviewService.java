@@ -84,8 +84,7 @@ public class ReviewService {
 
         List<ReviewInfoResDto> data = trimmed.stream()
                 .map(review -> {
-                    String imageUrl = awsS3Service.getFileUrls(review.getFeedImage());
-                    return ReviewInfoResDto.of(review, imageUrl);
+                    return ReviewInfoResDto.of(review, memberRepository.getReviewCountByEmail(review.getMember().getEmail()));
                 })
                 .toList();
 
@@ -103,8 +102,7 @@ public class ReviewService {
 
         List<ReviewInfoResDto> data = trimmed.stream()
                 .map(review -> {
-                    String imageUrl = awsS3Service.getFileUrls(review.getFeedImage());
-                    return ReviewInfoResDto.of(review, imageUrl);
+                    return ReviewInfoResDto.of(review, memberRepository.getReviewCountByEmail(email));
                 })
                 .toList();
 
