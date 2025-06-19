@@ -8,9 +8,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import shop.babsim.babsim.auth.api.dto.request.IdTokenAndRefreshTokenDto;
 import shop.babsim.babsim.auth.api.dto.response.IdTokenResDto;
@@ -18,7 +24,11 @@ import shop.babsim.babsim.auth.api.dto.response.UserInfo;
 import shop.babsim.babsim.auth.application.AuthService;
 import shop.babsim.babsim.global.oauth.config.GoogleOAuthProperties;
 import shop.babsim.babsim.global.oauth.exception.OAuthException;
+import shop.babsim.babsim.member.application.MemberService;
+import shop.babsim.babsim.member.domain.Member;
 import shop.babsim.babsim.member.domain.SocialType;
+import shop.babsim.babsim.member.domain.repository.MemberRepository;
+import shop.babsim.babsim.member.exception.MemberNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +41,8 @@ public class GoogleAuthService implements AuthService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private final GoogleOAuthProperties googleOAuthProperties;
+    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     @Override
     public IdTokenAndRefreshTokenDto getToken(String code) {
@@ -103,7 +115,77 @@ public class GoogleAuthService implements AuthService {
     }
 
     @Override
+    @Transactional
     public void unlink(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new);
 
+        String refreshToken = member.getProviderRefreshToken();
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new OAuthException("Google refresh_token이 존재하지 않아 연결 해제를 진행할 수 없습니다.");
+        }
+
+        String accessToken = refreshAccessToken(refreshToken);
+
+        revokeToken(accessToken);
+
+        memberService.deleteMember(email);
     }
+
+    private String refreshAccessToken(String refreshToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", googleOAuthProperties.getClientId());
+        params.add("client_secret", googleOAuthProperties.getClientSecret());
+        params.add("refresh_token", refreshToken);
+        params.add("grant_type", "refresh_token");
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://oauth2.googleapis.com/token",
+                HttpMethod.POST,
+                request,
+                String.class
+        );
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new OAuthException("Google access_token 갱신 실패: " + response.getStatusCode());
+        }
+
+        try {
+            JsonNode jsonNode = objectMapper.readTree(response.getBody());
+            if (jsonNode.has("access_token")) {
+                return jsonNode.get("access_token").asText();
+            } else {
+                throw new OAuthException("access_token이 응답에 포함되지 않았습니다.");
+            }
+        } catch (Exception e) {
+            throw new OAuthException("access_token 파싱 중 오류 발생");
+        }
+    }
+
+    private void revokeToken(String accessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("token", accessToken);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://oauth2.googleapis.com/revoke",
+                HttpMethod.POST,
+                request,
+                String.class
+        );
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new OAuthException("Google unlink 실패: " + response.getStatusCode());
+        }
+    }
+
 }
