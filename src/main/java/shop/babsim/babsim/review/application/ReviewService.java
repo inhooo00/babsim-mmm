@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.global.dto.PageInfoResDto;
+import shop.babsim.babsim.heart.domain.repository.HeartRepository;
 import shop.babsim.babsim.member.block.domain.repository.BlockRepository;
 import shop.babsim.babsim.member.domain.Member;
 import shop.babsim.babsim.member.domain.repository.MemberRepository;
@@ -36,7 +37,7 @@ public class ReviewService {
     private final PlaceRepository placeRepository;
     private final AwsS3Service awsS3Service;
     private final BlockRepository blockRepository;
-
+    private final HeartRepository heartRepository;
     @Transactional
     public ReviewSaveInfoResDto save(String email, ReviewSaveReqDto reviewSaveReqDto, List<String> imageUrls) {
         Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
@@ -84,7 +85,8 @@ public class ReviewService {
 
         List<ReviewInfoResDto> data = trimmed.stream()
                 .map(review -> {
-                    return ReviewInfoResDto.of(review, memberRepository.getReviewCountByEmail(review.getMember().getEmail()));
+                    boolean isLike = heartRepository.existsByMemberEmailAndReviewId(email, review.getId());
+                    return ReviewInfoResDto.of(review, memberRepository.getReviewCountByEmail(review.getMember().getEmail()), isLike);
                 })
                 .toList();
 
@@ -102,7 +104,8 @@ public class ReviewService {
 
         List<ReviewInfoResDto> data = trimmed.stream()
                 .map(review -> {
-                    return ReviewInfoResDto.of(review, memberRepository.getReviewCountByEmail(email));
+                    boolean isLike = heartRepository.existsByMemberEmailAndReviewId(email, review.getId());
+                    return ReviewInfoResDto.of(review, memberRepository.getReviewCountByEmail(email), isLike);
                 })
                 .toList();
 
