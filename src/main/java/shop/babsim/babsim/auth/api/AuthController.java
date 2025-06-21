@@ -45,15 +45,28 @@ public class AuthController implements AuthDocs {
     public RspTemplate<TokenDto> generateAccessAndRefreshToken(
             @PathVariable(name = "provider") String provider,
             @RequestBody TokenReqDto tokenReqDto) {
+
         AuthService authService = authServiceFactory.getAuthService(provider);
+
         UserInfo userInfo = authService.getUserInfo(tokenReqDto.authCode());
 
-        MemberLoginResDto getMemberDto = memberService.saveUserInfo(userInfo,
-                SocialType.valueOf(provider.toUpperCase()), tokenReqDto.providerRefreshToken());
+        String finalRefreshToken = tokenReqDto.providerRefreshToken();
+        if (provider.equalsIgnoreCase("apple")) {
+            IdTokenAndRefreshTokenDto tokenDto = authService.getToken(tokenReqDto.authCode());
+            finalRefreshToken = tokenDto.refreshToken();
+        }
+
+        MemberLoginResDto getMemberDto = memberService.saveUserInfo(
+                userInfo,
+                SocialType.valueOf(provider.toUpperCase()),
+                finalRefreshToken
+        );
+
         TokenDto getToken = tokenService.getToken(getMemberDto);
 
         return new RspTemplate<>(HttpStatus.OK, "토큰 발급", getToken);
     }
+
 
     @PostMapping("/token/access")
     public RspTemplate<TokenDto> generateAccessToken(@RequestBody RefreshTokenReqDto refreshTokenReqDto) {
