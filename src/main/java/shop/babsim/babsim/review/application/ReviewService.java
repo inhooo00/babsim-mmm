@@ -60,11 +60,19 @@ public class ReviewService {
                 ? blockRepository.findBlockedMemberIdsByEmail(email)
                 : List.of();
 
-        Page<ReviewInfoResDto> reviews = reviewRepository.findAllByPlaceIdExcludingBlocked(placeId, blockedIds,
-                pageable);
+        Page<Review> reviewPage = reviewRepository.findAllByPlaceIdExcludingBlocked(placeId, blockedIds, pageable);
 
-        return ReviewListResDto.of(reviews.getContent(), PageInfoResDto.from(reviews));
+        List<ReviewInfoResDto> dtoList = reviewPage.getContent().stream()
+                .map(review -> {
+                    int reviewCount = memberRepository.getReviewCountByEmail(review.getMember().getEmail());
+                    boolean isLike = heartRepository.existsByMemberEmailAndReviewId(email, review.getId());
+                    return ReviewInfoResDto.of(review, reviewCount, isLike);
+                })
+                .toList();
+
+        return ReviewListResDto.of(dtoList, PageInfoResDto.from(reviewPage));
     }
+
 
     public ReviewListResDto findByEmail(String email, Pageable pageable) {
         Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
