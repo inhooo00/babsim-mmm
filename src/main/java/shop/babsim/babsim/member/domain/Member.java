@@ -47,6 +47,8 @@ public class Member extends BaseEntity {
 
     private String introduction;
 
+    private String providerRefreshToken;
+
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Token token;
 
@@ -80,7 +82,8 @@ public class Member extends BaseEntity {
                    String picture,
                    SocialType socialType,
                    String nickname,
-                   String introduction) {
+                   String introduction,
+                   String providerRefreshToken) {
         this.status = status;
         this.role = role;
         this.email = email;
@@ -89,6 +92,7 @@ public class Member extends BaseEntity {
         this.socialType = socialType;
         this.nickname = nickname;
         this.introduction = introduction;
+        this.providerRefreshToken = providerRefreshToken;
     }
 
     public void updateProfile(String picture, String nickName) {

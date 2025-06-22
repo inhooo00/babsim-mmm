@@ -26,9 +26,12 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+
 src/**/application-prod.yml
 src/**/real_final_bobsim_last.csv
 src/**/.DS_Store
+src/main/resources/apple/AuthKey.p8
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/

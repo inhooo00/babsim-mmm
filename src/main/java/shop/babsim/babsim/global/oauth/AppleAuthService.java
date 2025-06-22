@@ -1,25 +1,48 @@
 package shop.babsim.babsim.global.oauth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shop.babsim.babsim.auth.api.dto.response.IdTokenResDto;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import shop.babsim.babsim.auth.api.dto.request.IdTokenAndRefreshTokenDto;
 import shop.babsim.babsim.auth.api.dto.response.UserInfo;
 import shop.babsim.babsim.auth.application.AuthService;
+import shop.babsim.babsim.global.oauth.config.apple.AppleClientSecretGenerator;
+import shop.babsim.babsim.global.oauth.config.apple.AppleOAuthProperties;
 import shop.babsim.babsim.global.oauth.exception.OAuthException;
+import shop.babsim.babsim.member.application.MemberService;
+import shop.babsim.babsim.member.domain.Member;
 import shop.babsim.babsim.member.domain.SocialType;
+import shop.babsim.babsim.member.domain.repository.MemberRepository;
+import shop.babsim.babsim.member.exception.MemberNotFoundException;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AppleAuthService implements AuthService {
+
     private static final String JWT_DELIMITER = "\\.";
+    private static final String APPLE_TOKEN_URL = "https://appleid.apple.com/auth/token";
+    private static final String APPLE_REVOKE_URL = "https://appleid.apple.com/auth/revoke";
 
     private final ObjectMapper objectMapper;
+    private final RestTemplate restTemplate;
+    private final AppleOAuthProperties appleOAuthProperties;
+    private final AppleClientSecretGenerator appleClientSecretGenerator;
+    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     @Override
     public String getProvider() {
@@ -27,13 +50,81 @@ public class AppleAuthService implements AuthService {
     }
 
     @Override
-    public IdTokenResDto getIdToken(String code) {
-        return null;
+    public IdTokenAndRefreshTokenDto getToken(String code) {
+        String clientSecret = appleClientSecretGenerator.generate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("client_id", appleOAuthProperties.getClientId());
+        body.add("client_secret", clientSecret);
+        body.add("code", code);
+        body.add("grant_type", "authorization_code");
+        body.add("redirect_uri", appleOAuthProperties.getRedirectUri());
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                APPLE_TOKEN_URL,
+                HttpMethod.POST,
+                request,
+                String.class
+        );
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new OAuthException("Apple 토큰 발급 실패: " + response.getStatusCode());
+        }
+
+        try {
+            JsonNode jsonNode = objectMapper.readTree(response.getBody());
+
+            String idToken = jsonNode.has("id_token") ? jsonNode.get("id_token").asText() : null;
+            String refreshToken = jsonNode.has("refresh_token") ? jsonNode.get("refresh_token").asText() : null;
+
+            return new IdTokenAndRefreshTokenDto(idToken, refreshToken);
+
+        } catch (JsonProcessingException e) {
+            throw new OAuthException("Apple 응답 파싱 실패");
+        }
     }
 
+    @Transactional
     @Override
-    public void unlink(String accessToken) {
+    public void unlink(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new);
 
+        String refreshToken = member.getProviderRefreshToken();
+        if (refreshToken == null) {
+            throw new OAuthException("Apple refresh_token이 존재하지 않습니다.");
+        }
+
+        String clientSecret = appleClientSecretGenerator.generate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", appleOAuthProperties.getClientId());
+        params.add("client_secret", clientSecret);
+        params.add("token", refreshToken);
+        params.add("token_type_hint", "refresh_token");
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                APPLE_REVOKE_URL,
+                HttpMethod.POST,
+                request,
+                String.class
+        );
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new OAuthException("Apple 사용자 연결 해제 실패: " + response.getStatusCode());
+        }
+
+        memberService.deleteMember(email);
     }
 
     @Transactional
@@ -50,12 +141,10 @@ public class AppleAuthService implements AuthService {
 
     private String getDecodePayload(String idToken) {
         String payload = getPayload(idToken);
-
         return new String(Base64.getUrlDecoder().decode(payload), StandardCharsets.UTF_8);
     }
 
     private String getPayload(String idToken) {
         return idToken.split(JWT_DELIMITER)[1];
     }
-
 }

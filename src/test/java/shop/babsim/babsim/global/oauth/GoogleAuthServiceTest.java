@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
+import shop.babsim.babsim.auth.api.dto.request.IdTokenAndRefreshTokenDto;
 import shop.babsim.babsim.auth.api.dto.response.IdTokenResDto;
 import shop.babsim.babsim.auth.api.dto.response.UserInfo;
 import shop.babsim.babsim.global.oauth.GoogleAuthService;
@@ -54,7 +55,7 @@ class GoogleAuthServiceTest {
         when(jsonNode.get("id_token")).thenReturn(mock(JsonNode.class));
 
         // when
-        IdTokenResDto result = googleAuthService.getIdToken(code);
+        IdTokenAndRefreshTokenDto result = googleAuthService.getToken(code);
 
         // then
         assertThat(result).isNotNull();
