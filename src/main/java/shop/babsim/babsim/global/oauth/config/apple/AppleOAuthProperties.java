@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "oauth.apple")
 public class AppleOAuthProperties {
+    //yml에서 읽어옴
     private String clientId;
     private String teamId;
     private String keyId;
     private String redirectUri;
-    private String bundleId;
 }
