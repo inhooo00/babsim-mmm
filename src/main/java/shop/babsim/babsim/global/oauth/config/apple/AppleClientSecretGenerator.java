@@ -18,7 +18,7 @@ public class AppleClientSecretGenerator {
 
     public String generate() {
         Instant now = Instant.now();
-        Instant exp = now.plusSeconds(60 * 60 * 6);
+        Instant exp = now.plusSeconds(60 * 60);
 
         return Jwts.builder()
                 .setHeaderParam("kid", appleOAuthProperties.getKeyId())

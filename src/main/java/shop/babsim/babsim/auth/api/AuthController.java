@@ -52,10 +52,9 @@ public class AuthController implements AuthDocs {
 
         String finalRefreshToken = tokenReqDto.providerRefreshToken();
         if (provider.equalsIgnoreCase("apple")) {
-            IdTokenAndRefreshTokenDto tokenDto = authService.getToken(tokenReqDto.authCode());
+            IdTokenAndRefreshTokenDto tokenDto = authService.getToken(tokenReqDto.providerRefreshToken());
             finalRefreshToken = tokenDto.refreshToken();
         }
-
         MemberLoginResDto getMemberDto = memberService.saveUserInfo(
                 userInfo,
                 SocialType.valueOf(provider.toUpperCase()),
@@ -66,7 +65,6 @@ public class AuthController implements AuthDocs {
 
         return new RspTemplate<>(HttpStatus.OK, "토큰 발급", getToken);
     }
-
 
     @PostMapping("/token/access")
     public RspTemplate<TokenDto> generateAccessToken(@RequestBody RefreshTokenReqDto refreshTokenReqDto) {
