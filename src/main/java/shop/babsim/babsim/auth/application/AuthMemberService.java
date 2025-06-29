@@ -64,8 +64,15 @@ public class AuthMemberService {
     }
 
     private String unionName(String name, String nickname) {
-        return nickname != null ? nickname : name;
+        if (nickname != null && !nickname.isBlank()) {
+            return nickname;
+        } else if (name != null && !name.isBlank()) {
+            return name;
+        } else {
+            return "밥심프렌드";
+        }
     }
+
 
     private String getUserPicture(String picture) {
         return Optional.ofNullable(picture)
