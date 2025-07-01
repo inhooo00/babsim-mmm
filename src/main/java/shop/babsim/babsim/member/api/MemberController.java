@@ -1,9 +1,7 @@
 package shop.babsim.babsim.member.api;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
 import shop.babsim.babsim.member.api.dto.request.UpdateProfileReqDto;
+import shop.babsim.babsim.member.api.dto.response.MemberPageInfoResDto;
 import shop.babsim.babsim.member.api.dto.response.MyPageInfoResDto;
-import shop.babsim.babsim.member.api.dto.response.ProfileInfoResDto;
 import shop.babsim.babsim.member.api.dto.response.ProfileInfoResListDto;
 import shop.babsim.babsim.member.api.dto.response.UpdateMyPageInfoResDto;
 import shop.babsim.babsim.member.application.MemberService;
@@ -33,8 +31,8 @@ public class MemberController implements MemberDocs{
     }
 
     @GetMapping("/my-page/{memberId}")
-    public RspTemplate<MyPageInfoResDto> memberProfileInfo(@PathVariable Long memberId) {
-        MyPageInfoResDto memberResDto = memberService.findProfileByEmail(memberId);
+    public RspTemplate<MemberPageInfoResDto> memberProfileInfo(@PathVariable Long memberId) {
+        MemberPageInfoResDto memberResDto = memberService.findProfileByEmail(memberId);
         return new RspTemplate<>(HttpStatus.OK, "상대방 프로필 정보", memberResDto);
     }
 

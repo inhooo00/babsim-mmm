@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import shop.babsim.babsim.member.api.dto.response.MyPageInfoResDto;
+import shop.babsim.babsim.member.api.dto.response.MemberPageInfoResDto;
 import shop.babsim.babsim.member.application.MemberService;
 import shop.babsim.babsim.member.domain.Member;
 import shop.babsim.babsim.member.domain.repository.MemberRepository;
@@ -32,11 +32,11 @@ class MemberServiceTest {
     @DisplayName("내 프로필 조회 성공")
     void findMyProfileByEmail_success() {
         String email = "inho@example.com";
-        MyPageInfoResDto expectedDto = mock(MyPageInfoResDto.class);
+        MemberPageInfoResDto expectedDto = mock(MemberPageInfoResDto.class);
 
         when(memberRepository.findProfileByEmail(email)).thenReturn(expectedDto);
 
-        MyPageInfoResDto result = memberService.findMyProfileByEmail(email);
+        MemberPageInfoResDto result = memberService.findMyProfileByEmail(email);
 
         assertThat(result).isEqualTo(expectedDto);
         verify(memberRepository).findProfileByEmail(email);
@@ -48,13 +48,13 @@ class MemberServiceTest {
         Long memberId = 1L;
         String email = "inho@example.com";
         Member member = mock(Member.class);
-        MyPageInfoResDto expectedDto = mock(MyPageInfoResDto.class);
+        MemberPageInfoResDto expectedDto = mock(MemberPageInfoResDto.class);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
         when(member.getEmail()).thenReturn(email);
         when(memberRepository.findProfileByEmail(email)).thenReturn(expectedDto);
 
-        MyPageInfoResDto result = memberService.findProfileByEmail(memberId);
+        MemberPageInfoResDto result = memberService.findProfileByEmail(memberId);
 
         assertThat(result).isEqualTo(expectedDto);
         verify(memberRepository).findById(memberId);

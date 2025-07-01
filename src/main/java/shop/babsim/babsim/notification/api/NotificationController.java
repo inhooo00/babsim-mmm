@@ -40,12 +40,11 @@ public class NotificationController implements NotificationDocs {
 
     @GetMapping("/notifications")
     public RspTemplate<NotificationsResDto> getNotifications(@CurrentUserEmail String email) {
-        return new RspTemplate<>(HttpStatus.OK, "알림 조회 성공.", notificationService.getNotifications(email));
+        NotificationsResDto notifications = notificationService.getNotifications(email);
+
+        notificationService.markAllNotificationsAsRead(email);
+
+        return new RspTemplate<>(HttpStatus.OK, "알림 조회 성공.", notifications);
     }
 
-    @PatchMapping("/notifications")
-    public RspTemplate<Void> markAllNotificationsAsRead(@CurrentUserEmail String email) {
-        notificationService.markAllNotificationsAsRead(email);
-        return new RspTemplate<>(HttpStatus.OK, "모든 알림이 읽음으로 표시되었습니다.");
-    }
 }
