@@ -42,8 +42,15 @@ public class AuthMemberService {
 
     private Member getExistingMemberOrCreateNew(UserInfo userInfo, SocialType provider, String providerRefreshToken) {
         return memberRepository.findByEmail(userInfo.email())
+                .map(existingMember -> {
+                    if (providerRefreshToken != null && !providerRefreshToken.isBlank()) {
+                        existingMember.updateProviderRefreshToken(providerRefreshToken);
+                    }
+                    return existingMember;
+                })
                 .orElseGet(() -> createMember(userInfo, provider, providerRefreshToken));
     }
+
 
     private Member createMember(UserInfo userInfo, SocialType provider, String providerRefreshToken) {
         String name = unionName(userInfo.name(), userInfo.nickname());

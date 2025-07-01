@@ -52,7 +52,7 @@ class TokenProviderTest {
         // when
         TokenDto tokenDto = tokenProvider.generateToken(email);
         String accessToken = tokenDto.accessToken();
-        TokenReqDto tokenReqDto = new TokenReqDto(accessToken);
+        TokenReqDto tokenReqDto = new TokenReqDto(accessToken, null);
         String parsedEmail = tokenProvider.getUserEmailFromToken(tokenReqDto);
 
         // then
