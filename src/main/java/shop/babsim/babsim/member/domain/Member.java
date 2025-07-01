@@ -99,4 +99,9 @@ public class Member extends BaseEntity {
         this.picture = picture;
         this.nickname = nickName;
     }
+
+    public void updateProviderRefreshToken(String refreshToken) {
+        this.providerRefreshToken = refreshToken;
+    }
+
 }

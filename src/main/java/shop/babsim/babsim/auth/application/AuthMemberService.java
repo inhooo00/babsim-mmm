@@ -42,8 +42,15 @@ public class AuthMemberService {
 
     private Member getExistingMemberOrCreateNew(UserInfo userInfo, SocialType provider, String providerRefreshToken) {
         return memberRepository.findByEmail(userInfo.email())
+                .map(existingMember -> {
+                    if (providerRefreshToken != null && !providerRefreshToken.isBlank()) {
+                        existingMember.updateProviderRefreshToken(providerRefreshToken);
+                    }
+                    return existingMember;
+                })
                 .orElseGet(() -> createMember(userInfo, provider, providerRefreshToken));
     }
+
 
     private Member createMember(UserInfo userInfo, SocialType provider, String providerRefreshToken) {
         String name = unionName(userInfo.name(), userInfo.nickname());
@@ -64,8 +71,15 @@ public class AuthMemberService {
     }
 
     private String unionName(String name, String nickname) {
-        return nickname != null ? nickname : name;
+        if (nickname != null && !nickname.isBlank()) {
+            return nickname;
+        } else if (name != null && !name.isBlank()) {
+            return name;
+        } else {
+            return "밥심프렌드";
+        }
     }
+
 
     private String getUserPicture(String picture) {
         return Optional.ofNullable(picture)

@@ -109,10 +109,15 @@ class ReviewServiceTest {
         Long reviewId = 1L;
         Member member = mock(Member.class);
 
+        Place place = mock(Place.class);
+        when(place.getBusinessName()).thenReturn("테스트 식당");
+
         Review review = mock(Review.class);
-        when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
         when(review.getFeedImage()).thenReturn("imageKey");
         when(review.getMember()).thenReturn(member);
+        when(review.getPlace()).thenReturn(place);
+
+        when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
         when(awsS3Service.getFileUrls("imageKey")).thenReturn("https://s3.com/image.jpg");
 
         ReviewInfoResDto result = reviewService.findById(reviewId);
@@ -120,6 +125,7 @@ class ReviewServiceTest {
         assertThat(result).isNotNull();
         verify(reviewRepository).findById(reviewId);
     }
+
 
     @Test
     @DisplayName("리뷰 ID로 조회 실패 - 존재하지 않음")

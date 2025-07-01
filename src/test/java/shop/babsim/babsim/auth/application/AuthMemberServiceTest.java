@@ -37,7 +37,7 @@ class AuthMemberServiceTest {
     void shouldThrowException_whenEmailIsNull() {
         UserInfo userInfo = new UserInfo(null, "인호", "인호사진", "인호");
 
-        assertThatThrownBy(() -> authMemberService.saveUserInfo(userInfo, SocialType.GOOGLE))
+        assertThatThrownBy(() -> authMemberService.saveUserInfo(userInfo, SocialType.GOOGLE, "refreshToken"))
                 .isInstanceOf(EmailNotFoundException.class);
     }
 
@@ -62,7 +62,7 @@ class AuthMemberServiceTest {
         when(memberRepository.save(any(Member.class))).thenReturn(newMember);
 
         // when
-        MemberLoginResDto result = authMemberService.saveUserInfo(userInfo, SocialType.GOOGLE);
+        MemberLoginResDto result = authMemberService.saveUserInfo(userInfo, SocialType.GOOGLE, "refreshToken");
 
         // then
         assertThat(result.findMember().getEmail()).isEqualTo(userInfo.email());
@@ -89,7 +89,7 @@ class AuthMemberServiceTest {
         when(memberRepository.findByEmail(userInfo.email())).thenReturn(Optional.of(existingMember));
 
         // when
-        MemberLoginResDto result = authMemberService.saveUserInfo(userInfo, SocialType.GOOGLE);
+        MemberLoginResDto result = authMemberService.saveUserInfo(userInfo, SocialType.GOOGLE, "refreshToken");
 
         // then
         assertThat(result.findMember().getEmail()).isEqualTo(userInfo.email());
@@ -108,7 +108,7 @@ class AuthMemberServiceTest {
 
         when(memberRepository.findByEmail(userInfo.email())).thenReturn(Optional.of(existingMember));
 
-        assertThatThrownBy(() -> authMemberService.saveUserInfo(userInfo, SocialType.GOOGLE))
+        assertThatThrownBy(() -> authMemberService.saveUserInfo(userInfo, SocialType.GOOGLE, "refreshToken"))
                 .isInstanceOf(ExistsMemberEmailException.class);
     }
 }
