@@ -47,14 +47,4 @@ public interface NotificationDocs {
             })
     RspTemplate<NotificationsResDto> getNotifications(
             @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email);
-
-    @Operation(summary = "알림 읽음으로 처리", description = "모든 알림을 읽음으로 처리한다.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "알림 읽음처리 성공"),
-                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-                    @ApiResponse(responseCode = "401", description = "인증 실패"),
-                    @ApiResponse(responseCode = "500", description = "서버 오류")
-            })
-    RspTemplate<Void> markAllNotificationsAsRead(
-            @Parameter(description = "로그인한 유저의 이메일(토큰에서 자동 추출)", hidden = true) String email);
 }
