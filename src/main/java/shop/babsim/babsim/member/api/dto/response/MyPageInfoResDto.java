@@ -13,10 +13,16 @@ public record MyPageInfoResDto(
         Integer reportCount,
         String grade,
         String reviewToNextGrade,
-        Double progressRate
+        Double progressRate,
+        Boolean hasUnreadNotification
 ) {
-    public static MyPageInfoResDto of(Member member, Integer reviewCount,
-                                      Double ratingAverage, Integer reportCount) {
+    public static MyPageInfoResDto of(
+            Member member,
+            int reviewCount,
+            double ratingAverage,
+            int reportCount,
+            boolean hasUnreadNotification
+    ) {
         Grade currentGrade = Grade.getGradeByReviewCount(reviewCount);
         Grade nextGrade = currentGrade.getNext();
 
@@ -25,21 +31,21 @@ public record MyPageInfoResDto(
         int range = (nextGrade != null ? nextGrade.getMinReviewCount() : base) - base;
 
         double rawProgress = (range > 0) ? ((double)(reviewCount - base) / range) : 1.0;
-        double progressRate = Math.min(1.0, Math.round(rawProgress * 10) / 10.0); // 0.1 단위 반올림
+        double progressRate = Math.min(1.0, Math.round(rawProgress * 10) / 10.0);
 
-        return MyPageInfoResDto.builder()
-                .picture(member.getPicture())
-                .nickName(member.getNickname())
-                .reviewCount(reviewCount)
-                .ratingAverage(ratingAverage)
-                .reportCount(reportCount)
-                .grade(currentGrade.getName())
-                .reviewToNextGrade(
-                        nextGrade != null
-                                ? "리뷰 " + toNext + "개 더 작성하면 " + nextGrade.getName() + " 단계예요!"
-                                : "최고 등급입니다 🎉"
-                )
-                .progressRate(progressRate)
-                .build();
+        return new MyPageInfoResDto(
+                member.getPicture(),
+                member.getNickname(),
+                reviewCount,
+                ratingAverage,
+                reportCount,
+                currentGrade.getName(),
+                (nextGrade != null)
+                        ? "리뷰 " + toNext + "개 더 작성하면 " + nextGrade.getName() + " 단계예요!"
+                        : "최고 등급입니다 🎉",
+                progressRate,
+                hasUnreadNotification
+        );
     }
 }
+

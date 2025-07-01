@@ -7,13 +7,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import shop.babsim.babsim.complaint.api.dto.request.ReviewReportReqDto;
 import shop.babsim.babsim.complaint.domain.ComplaintStatus;
-import shop.babsim.babsim.global.annotation.CurrentUserEmail;
 import shop.babsim.babsim.global.template.RspTemplate;
-import shop.babsim.babsim.member.api.dto.response.MyPageInfoResDto;
 
 @Tag(name = "[리뷰 신고 API]", description = "리뷰 신고 관련 API")
 public interface ComplaintDocs {
