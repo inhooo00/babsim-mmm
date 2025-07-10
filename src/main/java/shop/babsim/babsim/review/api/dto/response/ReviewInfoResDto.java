@@ -21,7 +21,7 @@ public record ReviewInfoResDto(
         String memberImage,
         String businessName,
         String placeId,
-        Grade grade,
+        String grade,
         boolean isLike
 ) {
     public static ReviewInfoResDto of(Review review, String feedImage) {
@@ -56,7 +56,7 @@ public record ReviewInfoResDto(
                 .memberImage(review.getMember().getPicture())
                 .businessName(review.getPlace().getBusinessName())
                 .placeId(review.getPlace().getPlaceId())
-                .grade(grade)
+                .grade(grade.getName())
                 .isLike(isLike)
                 .build();
     }
