@@ -32,24 +32,15 @@ public class CsvScheduleWriter implements ItemWriter<PlaceCsvData> {
                 .map(Place::from)
                 .collect(Collectors.toList());
 
+        // ✅ 중복 제거 또는 업데이트 처리
+        for (Place place : places) {
+            if (placeRepository.existsByPlaceId(place.getPlaceId())) {
+                placeRepository.deleteByPlaceId(place.getPlaceId());
+                log.info("🔄 기존 placeId 삭제 후 갱신: {}", place.getPlaceId());
+            }
+        }
+
         placeRepository.saveAll(places);
         log.info("✅ RDB 저장 완료: {}개 데이터", places.size());
-
-        List<PlaceDocument> placeDocuments = chunk.getItems().stream()
-                .map(PlaceDocument::from)
-                .collect(Collectors.toList());
-
-//        saveToElasticSearchAsync(placeDocuments);
     }
-
-    // ✅ ElasticSearch 저장을 비동기 처리
-//    @Async
-//    public void saveToElasticSearchAsync(List<PlaceDocument> placeDocuments) {
-//        try {
-//            placeSearchRepository.saveAll(placeDocuments);
-//            log.info("✅ ElasticSearch 저장 완료: {}개 데이터", placeDocuments.size());
-//        } catch (Exception e) {
-//            log.error("❌ ElasticSearch 저장 실패: {}", e.getMessage());
-//        }
-//    }
 }
