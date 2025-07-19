@@ -1,6 +1,7 @@
 package shop.babsim.babsim.place.csv;
 
 import jakarta.annotation.PostConstruct;
+import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -26,22 +27,21 @@ public class CsvJobRunner {
 
     @PostConstruct
     public void runJob() throws Exception {
-        File file = new ClassPathResource(shopCsvPath).getFile();
-        String hash = calculateMD5Hash(file);
+        try (InputStream is = new ClassPathResource(shopCsvPath).getInputStream()) {
+            String hash = calculateMD5Hash(is);
 
-        JobParameters jobParameters = new JobParametersBuilder()
-                .addString("fileHash", hash)
-                .toJobParameters();
+            JobParameters jobParameters = new JobParametersBuilder()
+                    .addString("fileHash", hash)
+                    .toJobParameters();
 
-        try {
             jobLauncher.run(csvJob, jobParameters);
         } catch (JobInstanceAlreadyCompleteException e) {
             System.out.println("⚠️ 이미 처리된 파일입니다. Job 실행 생략");
         }
     }
 
-    private String calculateMD5Hash(File file) throws Exception {
-        byte[] content = Files.readAllBytes(file.toPath());
+    private String calculateMD5Hash(InputStream is) throws Exception {
+        byte[] content = is.readAllBytes();
         MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] hashBytes = md.digest(content);
         return Base64.getEncoder().encodeToString(hashBytes);
