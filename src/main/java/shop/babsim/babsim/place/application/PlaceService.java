@@ -2,6 +2,7 @@ package shop.babsim.babsim.place.application;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ import shop.babsim.babsim.place.api.dto.response.PlaceSearchResListDto;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
 import shop.babsim.babsim.place.domain.Place;
 import shop.babsim.babsim.place.domain.Region;
+import shop.babsim.babsim.place.domain.RegionGroup;
 import shop.babsim.babsim.place.domain.repository.PlaceRepository;
 import shop.babsim.babsim.place.exception.PlaceNotFoundException;
 import shop.babsim.babsim.review.domain.repository.ReviewRepository;
@@ -85,16 +87,22 @@ public class PlaceService {
         return PlaceSearchCursorResDto.of(trimmed, nextCursor);
     }
 
-    public PlaceRecommendResListDto getRandomPlaceRecommendationsByRegion() {
-        List<PlaceRecommendResDto> result = Region.all().stream()
-                .map(region -> placeRepository.findRandomPlaceByProvince(region.getProvinceName())
-                        .map(this::toPlaceRecommendResDto)
-                        .orElse(null))
+    public PlaceRecommendResListDto getRandomPlaceRecommendationsByRegionGroup() {
+        List<PlaceRecommendResDto> result = RegionGroup.all().stream()
+                .map(group -> {
+                    List<Region> regions = group.getRegions();
+                    // 그룹 내 지역 중 랜덤 1개 선택
+                    Region randomRegion = regions.get(ThreadLocalRandom.current().nextInt(regions.size()));
+                    return placeRepository.findRandomPlaceByProvince(randomRegion.getProvinceName())
+                            .map(this::toPlaceRecommendResDto)
+                            .orElse(null);
+                })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         return PlaceRecommendResListDto.from(result);
     }
+
 
     private PlaceRecommendResDto toPlaceRecommendResDto(Place place) {
         Double rating = reviewRepository.getRatingAvgByPlaceId(place.getPlaceId());
