@@ -84,7 +84,7 @@ public class PlaceController implements PlaceDocs {
         return new RspTemplate<>(
                 HttpStatus.OK,
                 "지역별 랜덤 장소 추천 성공",
-                placeService.getRandomPlaceRecommendationsByRegion()
+                placeService.getRandomPlaceRecommendationsByRegionGroup()
         );
     }
 
