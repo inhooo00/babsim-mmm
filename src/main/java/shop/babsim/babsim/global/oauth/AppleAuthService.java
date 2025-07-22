@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -19,6 +20,8 @@ import org.springframework.web.client.RestTemplate;
 import shop.babsim.babsim.auth.api.dto.request.IdTokenAndRefreshTokenDto;
 import shop.babsim.babsim.auth.api.dto.response.UserInfo;
 import shop.babsim.babsim.auth.application.AuthService;
+import shop.babsim.babsim.auth.domain.ApplePreSignup;
+import shop.babsim.babsim.auth.domain.repository.ApplePreSignupRepository;
 import shop.babsim.babsim.global.oauth.config.apple.AppleClientSecretGenerator;
 import shop.babsim.babsim.global.oauth.config.apple.AppleOAuthProperties;
 import shop.babsim.babsim.global.oauth.exception.OAuthException;
@@ -43,6 +46,7 @@ public class AppleAuthService implements AuthService {
     private final AppleClientSecretGenerator appleClientSecretGenerator;
     private final MemberRepository memberRepository;
     private final MemberService memberService;
+    private final ApplePreSignupRepository applePreSignupRepository;
 
     @Override
     public String getProvider() {
@@ -133,7 +137,24 @@ public class AppleAuthService implements AuthService {
         String decodePayload = getDecodePayload(idToken);
 
         try {
-            return objectMapper.readValue(decodePayload, UserInfo.class);
+            JsonNode json = objectMapper.readTree(decodePayload);
+
+            String sub = json.get("sub").asText();
+            String email = json.has("email") ? json.get("email").asText() : null;
+            String name = json.has("name") ? json.get("name").asText() : null;
+
+            if (email != null) {
+                if (!applePreSignupRepository.existsBySub(sub)) {
+                    applePreSignupRepository.save(ApplePreSignup.of(sub, email, name));
+                }
+            } else {
+                email = applePreSignupRepository.findBySub(sub)
+                        .map(ApplePreSignup::getEmail)
+                        .orElseThrow(() -> new OAuthException("Apple email 정보가 없습니다."));
+            }
+
+            return new UserInfo(email, name, null, name);
+
         } catch (JsonProcessingException e) {
             throw new OAuthException("id 토큰을 읽을 수 없습니다.");
         }
