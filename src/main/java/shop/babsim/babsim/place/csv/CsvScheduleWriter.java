@@ -21,26 +21,15 @@ import shop.babsim.babsim.place.domain.repository.PlaceRepository;
 @EnableAsync
 @RequiredArgsConstructor
 @Transactional
-public class CsvScheduleWriter implements ItemWriter<PlaceCsvData> {
+public class CsvScheduleWriter implements ItemWriter<Place> {
 
     private final PlaceRepository placeRepository;
 //    private final PlaceSearchRepository placeSearchRepository;
 
     @Override
-    public void write(Chunk<? extends PlaceCsvData> chunk) {
-        List<Place> places = chunk.getItems().stream()
-                .map(Place::from)
-                .collect(Collectors.toList());
-
-        // ✅ 중복 제거 또는 업데이트 처리
-        for (Place place : places) {
-            if (placeRepository.existsByPlaceId(place.getPlaceId())) {
-                placeRepository.deleteByPlaceId(place.getPlaceId());
-                log.info("🔄 기존 placeId 삭제 후 갱신: {}", place.getPlaceId());
-            }
-        }
-
+    public void write(Chunk<? extends Place> chunk) {
+        List<? extends Place> places = chunk.getItems();
         placeRepository.saveAll(places);
-        log.info("✅ RDB 저장 완료: {}개 데이터", places.size());
+        log.info("✅ 변경된 Place {}건 저장", places.size());
     }
 }
