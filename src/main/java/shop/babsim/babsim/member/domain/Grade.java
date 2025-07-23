@@ -9,12 +9,12 @@ import java.util.Comparator;
 @Getter
 @RequiredArgsConstructor
 public enum Grade {
-    BASIC("밥심", 0),
-    LEVEL_1("쌀알", 3),
-    LEVEL_2("밥그릇", 10),
-    LEVEL_3("맛잘알", 20),
-    LEVEL_4("밥도둑", 30),
-    LEVEL_5("밥심대장", 50);
+    BASIC("밥심", -1),
+    LEVEL_1("쌀알", 0),
+    LEVEL_2("밥그릇", 3),
+    LEVEL_3("맛잘알", 10),
+    LEVEL_4("밥도둑", 20),
+    LEVEL_5("밥심대장", 30);
 
     private final String name;
     private final int reviewThreshold;
