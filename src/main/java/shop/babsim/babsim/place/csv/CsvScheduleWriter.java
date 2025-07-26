@@ -1,6 +1,7 @@
 package shop.babsim.babsim.place.csv;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +29,21 @@ public class CsvScheduleWriter implements ItemWriter<Place> {
 
     @Override
     public void write(Chunk<? extends Place> chunk) {
-        List<? extends Place> places = chunk.getItems();
+        List<? extends Place> places = chunk.getItems()
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        List<String> idsToDelete = places.stream()
+                .map(Place::getPlaceId)
+                .collect(Collectors.toList());
+
+        // 기존 데이터 삭제
+        placeRepository.deleteByPlaceIdIn(idsToDelete);
+
+        // 새 데이터 저장
         placeRepository.saveAll(places);
-        log.info("✅ 변경된 Place {}건 저장", places.size());
+
+        log.info("✅ 변경된 Place {}건 삭제 후 재저장 완료", places.size());
     }
 }

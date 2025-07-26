@@ -26,11 +26,21 @@ public class CsvHashChangeProcessor implements ItemProcessor<PlaceCsvData, Place
 
         Optional<PlaceCsvHash> existingHash = hashRepository.findById(placeId);
 
-        if (existingHash.isPresent() && existingHash.get().getRowHash().equals(newHash)) {
+        if (existingHash.isEmpty()) {
+            // ✅ 신규 → Place + 해시 모두 저장
+            hashRepository.save(new PlaceCsvHash(placeId, newHash));
+            return Place.from(item);
+        }
+
+        if (existingHash.get().getRowHash().equals(newHash)) {
+            // ✅ 변경 없음
             return null;
         }
 
-        hashRepository.save(new PlaceCsvHash(placeId, newHash));
+        // ✅ 변경된 행 → 해시 갱신 + Place 갱신
+        PlaceCsvHash updated = existingHash.get();
+        updated.setRowHash(newHash);
+        hashRepository.save(updated);
 
         return Place.from(item);
     }
@@ -38,7 +48,31 @@ public class CsvHashChangeProcessor implements ItemProcessor<PlaceCsvData, Place
 
     private String hashRow(PlaceCsvData item) throws Exception {
         MessageDigest md = MessageDigest.getInstance("MD5");
-        byte[] digest = md.digest(item.toString().getBytes(StandardCharsets.UTF_8));
+
+        String rowData = String.join("|",
+                nullSafe(item.getProvince()),
+                nullSafe(item.getCity()),
+                nullSafe(item.getCategory()),
+                nullSafe(item.getBusinessName()),
+                nullSafe(item.getContactNumber()),
+                nullSafe(item.getAddress()),
+                nullSafe(item.getMenu1()),
+                nullSafe(item.getPrice1()),
+                nullSafe(item.getMenu2()),
+                nullSafe(item.getPrice2()),
+                nullSafe(item.getPlaceId()),
+                nullSafe(item.getPeriods()),
+                nullSafe(item.getWeekdayDescriptions()),
+                nullSafe(item.getPhotoUrls()),
+                String.valueOf(item.getLatitude()),
+                String.valueOf(item.getLongitude())
+        );
+
+        byte[] digest = md.digest(rowData.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(digest);
+    }
+
+    private String nullSafe(String value) {
+        return value == null ? "" : value;
     }
 }
