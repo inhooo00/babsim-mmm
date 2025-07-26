@@ -29,7 +29,5 @@ public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceCustom
     @Query(value = "SELECT * FROM place WHERE province = :province ORDER BY RAND() LIMIT 1", nativeQuery = true)
     Optional<Place> findRandomPlaceByProvince(@Param("province") String province);
 
-    boolean existsByPlaceId(String placeId);
-
-    void deleteByPlaceId(String placeId);
+    void deleteByPlaceIdIn(List<String> placeIds);
 }

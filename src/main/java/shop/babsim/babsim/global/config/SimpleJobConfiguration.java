@@ -12,7 +12,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import shop.babsim.babsim.place.csv.CsvReader;
 import shop.babsim.babsim.place.csv.CsvScheduleWriter;
+import shop.babsim.babsim.place.csv.config.CsvHashChangeProcessor;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
+import shop.babsim.babsim.place.domain.Place;
 
 @Slf4j
 @Configuration
@@ -31,10 +33,13 @@ public class SimpleJobConfiguration {
     @Bean
     public Step shopDataLoadStep(
             JobRepository jobRepository,
-            PlatformTransactionManager platformTransactionManager) {
+            PlatformTransactionManager platformTransactionManager,
+            CsvHashChangeProcessor csvHashChangeProcessor
+    ) {
         return new StepBuilder("shopDataLoadStep", jobRepository)
-                .<PlaceCsvData, PlaceCsvData>chunk(100, platformTransactionManager)
+                .<PlaceCsvData, Place>chunk(100, platformTransactionManager)
                 .reader(csvReader.csvScheduleReader())
+                .processor(csvHashChangeProcessor)
                 .writer(csvScheduleWriter)
                 .build();
     }
