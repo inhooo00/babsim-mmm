@@ -14,7 +14,7 @@ sleep 10
 
 for RETRY_COUNT in {1..10}
 do
-  RESPONSE=$(curl -s <http://127.0.0.1>:${IDLE_PORT}/profile)
+  RESPONSE=$(curl -s http://127.0.0.1:${IDLE_PORT}/profile)
   UP_COUNT=$(echo ${RESPONSE} | grep 'real' | wc -l)
 
   if [ ${UP_COUNT} -ge 1 ] # Nginx와 연결되지 않은 포트로 스프링 부트가 잘 실행되었는지 체크합니다
