@@ -27,17 +27,17 @@ public class CsvHashChangeProcessor implements ItemProcessor<PlaceCsvData, Place
         Optional<PlaceCsvHash> existingHash = hashRepository.findById(placeId);
 
         if (existingHash.isEmpty()) {
-            // ✅ 신규 → Place + 해시 모두 저장
+            // 신규 → Place + 해시 모두 저장
             hashRepository.save(new PlaceCsvHash(placeId, newHash));
             return Place.from(item);
         }
 
         if (existingHash.get().getRowHash().equals(newHash)) {
-            // ✅ 변경 없음
+            // 변경 없음
             return null;
         }
 
-        // ✅ 변경된 행 → 해시 갱신 + Place 갱신
+        // 변경된 행 → 해시 갱신 + Place 갱신
         PlaceCsvHash updated = existingHash.get();
         updated.setRowHash(newHash);
         hashRepository.save(updated);
