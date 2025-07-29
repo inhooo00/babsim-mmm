@@ -22,6 +22,7 @@ import shop.babsim.babsim.place.domain.Place;
 public class SimpleJobConfiguration {
     private final CsvReader csvReader;
     private final CsvScheduleWriter csvScheduleWriter;
+    private final CsvHashChangeProcessor csvHashChangeProcessor;
 
     @Bean
     public Job shopDataLoadJob(JobRepository jobRepository, Step shopDataLoadStep) {
@@ -33,8 +34,7 @@ public class SimpleJobConfiguration {
     @Bean
     public Step shopDataLoadStep(
             JobRepository jobRepository,
-            PlatformTransactionManager platformTransactionManager,
-            CsvHashChangeProcessor csvHashChangeProcessor
+            PlatformTransactionManager platformTransactionManager
     ) {
         return new StepBuilder("shopDataLoadStep", jobRepository)
                 .<PlaceCsvData, Place>chunk(100, platformTransactionManager)
