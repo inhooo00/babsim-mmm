@@ -14,6 +14,9 @@ import shop.babsim.babsim.place.csv.CsvReader;
 import shop.babsim.babsim.place.csv.CsvScheduleWriter;
 import shop.babsim.babsim.place.csv.config.CsvHashChangeProcessor;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
+import shop.babsim.babsim.place.csv.listener.LoggingChunkListener;
+import shop.babsim.babsim.place.csv.listener.LoggingJobListener;
+import shop.babsim.babsim.place.csv.listener.LoggingStepListener;
 import shop.babsim.babsim.place.domain.Place;
 
 @Slf4j
@@ -24,9 +27,15 @@ public class SimpleJobConfiguration {
     private final CsvScheduleWriter csvScheduleWriter;
     private final CsvHashChangeProcessor csvHashChangeProcessor;
 
+    // Listener
+    private final LoggingJobListener loggingJobListener;
+    private final LoggingStepListener loggingStepListener;
+    private final LoggingChunkListener loggingChunkListener;
+
     @Bean
     public Job shopDataLoadJob(JobRepository jobRepository, Step shopDataLoadStep) {
         return new JobBuilder("shopInformationLoadJob", jobRepository)
+                .listener(loggingJobListener)
                 .start(shopDataLoadStep)
                 .build();
     }
@@ -41,6 +50,8 @@ public class SimpleJobConfiguration {
                 .reader(csvReader.csvScheduleReader())
                 .processor(csvHashChangeProcessor)
                 .writer(csvScheduleWriter)
+                .listener(loggingStepListener)
+                .listener(loggingChunkListener)
                 .build();
     }
 }
