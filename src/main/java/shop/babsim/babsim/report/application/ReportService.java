@@ -32,13 +32,37 @@ public class ReportService {
 
     @Transactional
     public ReportResDto saveReport(String email, ReportReqDto reportReqDto) {
-        Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
-        Report report = ReportReqDto.toEntity(member, reportReqDto);
+        boolean isAnonymous = (email == null || email.isBlank() || email.equalsIgnoreCase("익명"));
 
+        Member member = null;
+        if (!isAnonymous) {
+            member = memberRepository.findByEmail(email)
+                    .orElseThrow(MemberNotFoundException::new);
+        }
+
+        Report report = ReportReqDto.toEntity(member, reportReqDto);
         reportRepository.save(report);
-        discordWebhookUtil.sendDiscordMessage(DiscordMessage.REPORT.getMessage(), member.getId());
+
+        String message = """
+            신고 접수됨!
+            ▪ 장소명: %s
+            ▪ 주소: %s
+            ▪ 메뉴: %s
+            ▪ 가격: %s
+            """.formatted(
+                safe(report.getBusinessName()),
+                safe(report.getAddress()),
+                safe(report.getMenu()),
+                safe(report.getPrice())
+        );
+
+        discordWebhookUtil.sendDiscordMessage(message, member != null ? member.getId() : null);
 
         return ReportResDto.from(report);
+    }
+
+    private String safe(String value) {
+        return value != null ? value : "(없음)";
     }
 
     public ReportListResDto findReportByEmail(String email, Pageable pageable) {

@@ -25,9 +25,7 @@ public class DiscordWebhookUtil {
 
             new RestTemplate().postForEntity(discordWebhookUrl, request, String.class);
 
-            System.out.println("✅ 디스코드 알림 전송 완료: " + message);
-        } catch (Exception e) {
-            System.err.println("❌ 디스코드 메시지 전송 실패: " + e.getMessage());
+        } catch (Exception ignored) {
         }
     }
 }
