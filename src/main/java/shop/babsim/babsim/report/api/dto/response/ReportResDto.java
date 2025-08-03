@@ -13,7 +13,7 @@ public record ReportResDto(
 ) {
     public static ReportResDto from(Report report) {
         return ReportResDto.builder()
-                .memberId(report.getMember().getId())
+                .memberId(report.getMember() != null ? report.getMember().getId() : null)
                 .businessName(report.getBusinessName())
                 .address(report.getAddress())
                 .menu(report.getMenu())
