@@ -1,7 +1,10 @@
 package shop.babsim.babsim.place.application;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -90,19 +93,23 @@ public class PlaceService {
     public PlaceRecommendResListDto getRandomPlaceRecommendationsByRegionGroup() {
         List<PlaceRecommendResDto> result = RegionGroup.all().stream()
                 .map(group -> {
-                    List<Region> regions = group.getRegions();
-                    // 그룹 내 지역 중 랜덤 1개 선택
-                    Region randomRegion = regions.get(ThreadLocalRandom.current().nextInt(regions.size()));
-                    return placeRepository.findRandomPlaceByProvince(randomRegion.getProvinceName())
-                            .map(this::toPlaceRecommendResDto)
-                            .orElse(null);
+                    List<Region> mutableRegions = new ArrayList<>(group.getRegions());
+                    Collections.shuffle(mutableRegions);
+
+                    for (Region region : mutableRegions) {
+                        Optional<Place> placeOpt = placeRepository.findRandomPlaceByProvince(region.getProvinceName());
+                        if (placeOpt.isPresent()) {
+                            return toPlaceRecommendResDto(placeOpt.get());
+                        }
+                    }
+
+                    return null;
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         return PlaceRecommendResListDto.from(result);
     }
-
 
     private PlaceRecommendResDto toPlaceRecommendResDto(Place place) {
         Double rating = reviewRepository.getRatingAvgByPlaceId(place.getPlaceId());

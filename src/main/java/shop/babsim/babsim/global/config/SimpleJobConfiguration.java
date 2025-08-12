@@ -12,7 +12,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import shop.babsim.babsim.place.csv.CsvReader;
 import shop.babsim.babsim.place.csv.CsvScheduleWriter;
+import shop.babsim.babsim.place.csv.config.CsvHashChangeProcessor;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
+import shop.babsim.babsim.place.csv.listener.LoggingChunkListener;
+import shop.babsim.babsim.place.csv.listener.LoggingJobListener;
+import shop.babsim.babsim.place.csv.listener.LoggingStepListener;
+import shop.babsim.babsim.place.domain.Place;
 
 @Slf4j
 @Configuration
@@ -20,10 +25,17 @@ import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
 public class SimpleJobConfiguration {
     private final CsvReader csvReader;
     private final CsvScheduleWriter csvScheduleWriter;
+    private final CsvHashChangeProcessor csvHashChangeProcessor;
+
+    // Listener
+    private final LoggingJobListener loggingJobListener;
+    private final LoggingStepListener loggingStepListener;
+    private final LoggingChunkListener loggingChunkListener;
 
     @Bean
     public Job shopDataLoadJob(JobRepository jobRepository, Step shopDataLoadStep) {
         return new JobBuilder("shopInformationLoadJob", jobRepository)
+                .listener(loggingJobListener)
                 .start(shopDataLoadStep)
                 .build();
     }
@@ -31,11 +43,15 @@ public class SimpleJobConfiguration {
     @Bean
     public Step shopDataLoadStep(
             JobRepository jobRepository,
-            PlatformTransactionManager platformTransactionManager) {
+            PlatformTransactionManager platformTransactionManager
+    ) {
         return new StepBuilder("shopDataLoadStep", jobRepository)
-                .<PlaceCsvData, PlaceCsvData>chunk(100, platformTransactionManager)
+                .<PlaceCsvData, Place>chunk(100, platformTransactionManager)
                 .reader(csvReader.csvScheduleReader())
+                .processor(csvHashChangeProcessor)
                 .writer(csvScheduleWriter)
+                .listener(loggingStepListener)
+                .listener(loggingChunkListener)
                 .build();
     }
 }
