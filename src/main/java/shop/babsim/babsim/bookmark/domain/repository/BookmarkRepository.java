@@ -13,9 +13,13 @@ import shop.babsim.babsim.place.domain.Place;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long>, BookmarkCustomRepository {
 
-    @Query("SELECT b.place, COUNT(b) AS bookmarkCount FROM Bookmark b " +
-            "GROUP BY b.place " +
-            "ORDER BY bookmarkCount DESC")
+    @Query("""
+    SELECT p, COUNT(b) AS bookmarkCount
+    FROM Place p
+    LEFT JOIN Bookmark b ON b.place = p
+    GROUP BY p
+    ORDER BY bookmarkCount DESC
+""")
     Page<Place> findTopPlacesByBookmarkCount(Pageable pageable);
 
     @Query("""
