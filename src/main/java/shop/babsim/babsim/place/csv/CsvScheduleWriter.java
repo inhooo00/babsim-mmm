@@ -10,6 +10,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import shop.babsim.babsim.place.csv.dto.PlaceCsvData;
 import shop.babsim.babsim.place.domain.Place;
@@ -18,7 +19,7 @@ import shop.babsim.babsim.place.domain.repository.PlaceRepository;
 //import shop.babsim.babsim.place.domain.repository.elasticsearch.PlaceSearchRepository;
 
 @Slf4j
-@Configuration
+@Component
 @EnableAsync
 @RequiredArgsConstructor
 @Transactional
