@@ -9,6 +9,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import shop.babsim.babsim.auth.api.dto.request.TokenReqDto;
 import shop.babsim.babsim.global.annotation.CurrentUserEmail;
+import shop.babsim.babsim.global.annotationresolver.excpetion.LogoutAccessException;
 import shop.babsim.babsim.global.jwt.TokenProvider;
 
 @Component
@@ -26,18 +27,25 @@ public class CurrentUserEmailArgumentResolver implements HandlerMethodArgumentRe
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+    public Object resolveArgument(MethodParameter parameter,
+                                  ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest,
+                                  WebDataBinderFactory binderFactory) {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         String token = request.getHeader("Authorization");
 
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             TokenReqDto tokenReqDto = new TokenReqDto(token, "");
-
             return tokenProvider.getUserEmailFromToken(tokenReqDto);
+        }
+
+        String uri = request.getRequestURI();
+        if ("/api/members/my-page".equals(uri)) {
+            throw new LogoutAccessException("로그아웃 이후 접근된 요청입니다. 다시 로그인해 주세요.");
         }
 
         return null;
     }
+
 }
